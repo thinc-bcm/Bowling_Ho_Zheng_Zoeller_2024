@@ -1,14 +1,8 @@
----
-title: "figure_6_script"
-output: 
-  md_document:
-    variant: markdown_github
----
-
-```{r setup}
+``` r
 knitr::opts_chunk$set(echo = TRUE)
 ```
-```{r }
+
+``` r
 # Load R libs ####
 library(ggplot2)
 library(ggpubr)
@@ -18,7 +12,9 @@ library(readxl)
 library(viridis)
 ```
 
-```{r Figure6_A}
+    ## Loading required package: viridisLite
+
+``` r
 # Define functions ####
 get_counts <- function(files, junxs) {
   counts <- do.call(cbind, lapply(files, function(file) {
@@ -100,13 +96,16 @@ p <- pheatmap(tmp,
                SUM159 = "blue", `MDA-MB231-LM2` = "green")),
          annotation_col = anno_col[, c("Cell.line", "dose", "signature")],
          breaks = seq(-2, 2, length = 100))
+```
 
+![](figure6_2_files/figure-markdown_github/Figure6_A-1.png)
+
+``` r
 ggsave(p, filename = "../LM2_SUM159_signature_heatmap.pdf",
 height = 6, width = 4)
 ```
 
-
-```{r figure6_C}
+``` r
 score <- read.delim(
   paste0("../data/dtag_experiments/",
          "top_122_differential_usage_lm2_sum159_multi_dosage.tsv")
@@ -131,11 +130,16 @@ ggplot(aframe[aframe$Clone == "D12", ],
        x = "dTAG [nM]") +
   geom_boxplot() + geom_point() +
   theme_classic()
+```
+
+![](figure6_2_files/figure-markdown_github/figure6_C-1.png)
+
+``` r
 ggsave(filename = "../SUM159_dosage_effect_UJ_score.pdf",
        height = 5, width = 6)
 ```
 
-```{r figure6_D}
+``` r
 # UJ score vs target specificity ####
 meta <- fread(
   "../data/dtag_experiments/CSJ_signature_score_splicing_genes_meta.tsv")
@@ -164,12 +168,19 @@ ggplot(aframe,
   stat_compare_means(comparisons = list(c(1, 2)),
                      method = "t.test") +
   theme_classic()
+```
+
+    ## [1] FALSE
+
+![](figure6_2_files/figure-markdown_github/figure6_D-1.png)
+
+``` r
 ggsave(
   filename = "../figure6_D_UJ_score_target_specificity.pdf",
   height = 6, width = 6)
 ```
 
-```{r figure6_E}
+``` r
 meta <- fread("../data/r222g_mutant/CSJ_signature_score_r222g_mutant_meta.tsv")
 score <- fread(
   "../data/r222g_mutant/CSJ_signature_score_r222g_mutant_score.tsv")
@@ -187,14 +198,39 @@ ggplot(aframe,
                      method = "t.test") +
   theme_classic() +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+```
+
+    ## [1] FALSE
+
+![](figure6_2_files/figure-markdown_github/figure6_E-1.png)
+
+``` r
 ggsave(filename = "../figure6_E_R222G_CJ_score.pdf",
        height = 6,
        width = 5)
-
 ```
-```{r }
+
+``` r
 score <- fread("../data/depmap/CSJ_signature_score_depmap.tsv")
+```
+
+    ## Warning in fread("../data/depmap/CSJ_signature_score_depmap.tsv"): Detected
+    ## 1 column names but the data has 2 columns (i.e. invalid file). Added 1 extra
+    ## default column name for the first column which is guessed to be row names or an
+    ## index. Use setnames() afterwards if this guess is not correct, or fix the file
+    ## write command that created the file to create a valid file.
+
+``` r
 sample_sra <- fread("../data/depmap/depmap_metadata.tsv")
+```
+
+    ## Warning in require_bit64_if_needed(ans): Some columns are type 'integer64'
+    ## but package bit64 is not installed. Those columns will print as strange
+    ## looking floating point data. There is no need to reload the data. Simply
+    ## install.packages('bit64') to obtain the integer64 print method and print the
+    ## data again.
+
+``` r
 cnv <- fread("../data/depmap/depmap_cnv.tsv")
 demeter2 <- fread("../data/depmap/depmap_demeter2.tsv")
 
@@ -216,8 +252,7 @@ lvs <- names(
 aframe$lineage <- factor(aframe$lineage, levels = lvs)
 ```
 
-
-```{r figure6_F}
+``` r
 # Fibroblasts vs rest - Boxplot ####
 ggplot(aframe[aframe$lineage %in% good_tissues, ],
        aes(DHX15_score, lineage, color = (lineage == "fibroblast"))) +
@@ -233,6 +268,13 @@ ggplot(aframe[aframe$lineage %in% good_tissues, ],
         intersect(
           lvs, good_tissues), "fibroblast"),
       function(x) c("fibroblast", x)), method = "t.test") + theme_classic()
+```
+
+    ## [1] FALSE
+
+![](figure6_2_files/figure-markdown_github/figure6_F-1.png)
+
+``` r
 ggsave(
   filename =
   "../figure6_F_Depmap_CJ_score_across_tissues_boxplot.pdf",
@@ -240,8 +282,7 @@ ggsave(
        width = 11)
 ```
 
-```{r Figure6_G}
-
+``` r
 # Figure 6 G
 aframe$Group <- aframe$bins
 aframe$Group <- gsub("low", "Bottom 25%", aframe$Group)
@@ -256,13 +297,31 @@ ggplot(aframe[aframe$Group %in% c("Bottom 25%", "Top 25%"), ],
   ggpubr::stat_compare_means(comparisons = list(c("Bottom 25%", "Top 25%"))) +
   scale_color_manual(values = c("black", "red")) +
   theme_classic()
+```
 
+    ## [1] FALSE
+
+    ## Warning: Removed 199 rows containing non-finite values (`stat_boxplot()`).
+
+    ## Warning: Removed 199 rows containing non-finite values (`stat_signif()`).
+
+    ## Warning: Removed 199 rows containing missing values (`geom_point()`).
+
+![](figure6_2_files/figure-markdown_github/Figure6_G-1.png)
+
+``` r
 ggsave(filename = "../figure6_G_Depmap_CNV_vs_CJ_score.pdf",
        height = 5,
        width = 4)
 ```
 
-```{r figure6_H}
+    ## Warning: Removed 199 rows containing non-finite values (`stat_boxplot()`).
+
+    ## Warning: Removed 199 rows containing non-finite values (`stat_signif()`).
+
+    ## Warning: Removed 199 rows containing missing values (`geom_point()`).
+
+``` r
 # Quartile low vs high CJ score vs dependency - BRCA only #####
 subm <- aframe[aframe$lineage == "breast", ]
 
@@ -281,7 +340,13 @@ ggplot(subm[subm$bins %in% c("Top 33%", "Bottom 33%"), ],
   ggpubr::stat_compare_means(comparisons = list(c("Bottom 33%", "Top 33%"))) +
   scale_color_manual(values = c("black", "red")) +
   theme_classic()
+```
 
+    ## [1] FALSE
+
+![](figure6_2_files/figure-markdown_github/figure6_H-1.png)
+
+``` r
 ggsave(filename =
          "../figure6_H_Depmap_UJ_vs_demeter2_BRCA_only.pdf",
        height = 5,
