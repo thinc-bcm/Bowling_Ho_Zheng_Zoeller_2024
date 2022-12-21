@@ -48,7 +48,7 @@ calculate_score <- function(counts, ujs, kis) {
 
 # Load data for LM2 & SUM159 heatmap ####
 prefix <- "../data/dtag_experiments/"
-meta <- fread("../data/dtag_experiments/meta_12_dtag.tsv")
+meta <- fread("../data/dtag_experiments/sum159_lm2_meta.tsv")
 
 name_list <- c("SUM159_D12_dTag13_DHX15_0nM_9hrs-1_classified_junctions.tsv",
                "SUM159_D12_dTag13_DHX15_0nM_9hrs-2_classified_junctions.tsv",
@@ -64,7 +64,7 @@ name_list <- c("SUM159_D12_dTag13_DHX15_0nM_9hrs-1_classified_junctions.tsv",
                "LM2_G10_dTag13_DHX15_50nM_9hrs-3_classified_junctions.tsv")
 files <- unlist(lapply(name_list, function(x) paste(prefix, x, sep = "")))
 dhx15_specific <- read.delim(
-  "../data/dtag_experiments/differential_usage_table.tsv")
+  "../data/dtag_experiments/differential_csj_frequency_table.tsv")
 dhx15_specific <- dhx15_specific[-grep("X", dhx15_specific$sum159.uj), ]
 ujs <- dhx15_specific$sum159.uj[which(
   dhx15_specific$lm2.coef > 1 & dhx15_specific$sum159.coef > 1)]
@@ -117,7 +117,7 @@ pval <- signif(coefficients(afit)[2, 4], 2)
 ggplot(aframe,
        aes(factor(Dosage.value), score)) +
   labs(title = "SUM159 FKBP-DHX15",
-       subtitle = paste("SUM159 D12 9hr - ordinal model P:", pval),
+       subtitle = paste("SUM159 9hr - ordinal model P:", pval),
        y = "DHX15 Signature CSJ score",
        x = "dTAG [nM]") +
   geom_boxplot() + geom_point() +
@@ -143,9 +143,7 @@ farben <- c(U2AF2 = "#9268AC",
 # Figure 6 D
 ggplot(aframe,
        aes(factor(Dosage.value), score, color = Target)) +
-  labs(title = "SUM159 dTag models",
-       subtitle = "9hr high dose",
-       y = "DXH15 Signature CSJ score",
+  labs(y = "DXH15 Signature CSJ score",
        x = "Dosage [nM]") +
   facet_wrap(~ Target, scales = "free_x", nrow = 1) +
   geom_boxplot() + geom_point() +
