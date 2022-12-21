@@ -1,9 +1,11 @@
 ---
 title: "figure_6_script"
-output: md_document
+output: 
+  md_document:
+    variant: markdown_github
 ---
 
-```{r setup, include=FALSE}
+```{r setup}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 ```{r }
