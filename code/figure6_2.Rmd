@@ -18,6 +18,7 @@ library(readxl)
 library(viridis)
 ```
 
+### Figure 6A
 ```{r Figure6_A}
 # Define functions ####
 get_counts <- function(files, junxs) {
@@ -100,30 +101,20 @@ p <- pheatmap(tmp,
                SUM159 = "blue", `MDA-MB231-LM2` = "green")),
          annotation_col = anno_col[, c("Cell.line", "dose", "signature")],
          breaks = seq(-2, 2, length = 100))
-
-ggsave(p, filename = "../LM2_SUM159_signature_heatmap.pdf",
-height = 6, width = 4)
 ```
 
-
+### Figure 6C
 ```{r figure6_C}
-score <- read.delim(
-  paste0("../data/dtag_experiments/",
-         "top_122_differential_usage_lm2_sum159_multi_dosage.tsv")
-  )
-samples <- gsub("_classified_junctions.tsv", "", fixed = TRUE, rownames(score))
-meta <- fread("../data/dtag_experiments/lm2_sum159_multi_dosage_meta.tsv")
-aframe <- data.frame(score, meta)
-aframe$condition <- paste(aframe$Clone, aframe$Dosage.value, aframe$Time.value)
-aframe$condition <- factor(
-  aframe$condition, levels =
-    unique(aframe$condition[order(aframe$Dosage.value, aframe$Time.value)]))
-tmp <- aframe[aframe$Clone == "D12", ]
-afit <- summary(lm(tmp$score ~ as.numeric(as.factor(tmp$Dosage.value))))
+score <- fread(paste0("../data/dtag_experiments/",
+         "CSJ_signature_score_sum159_dosage_score.tsv"))
+meta <- fread(
+  "../data/dtag_experiments/CSJ_signature_score_sum159_dosage_meta.tsv")
+aframe <- data.frame(meta, score)
+afit <- summary(lm(aframe$score ~ as.numeric(as.factor(aframe$Dosage.value))))
 pval <- signif(coefficients(afit)[2, 4], 2)
 
 # Figure 6 C
-ggplot(aframe[aframe$Clone == "D12", ],
+ggplot(aframe,
        aes(factor(Dosage.value), score)) +
   labs(title = "SUM159 FKBP-DHX15",
        subtitle = paste("SUM159 D12 9hr - ordinal model P:", pval),
@@ -131,10 +122,8 @@ ggplot(aframe[aframe$Clone == "D12", ],
        x = "dTAG [nM]") +
   geom_boxplot() + geom_point() +
   theme_classic()
-ggsave(filename = "../SUM159_dosage_effect_UJ_score.pdf",
-       height = 5, width = 6)
 ```
-
+### Figure 6D
 ```{r figure6_D}
 # UJ score vs target specificity ####
 meta <- fread(
@@ -164,11 +153,9 @@ ggplot(aframe,
   stat_compare_means(comparisons = list(c(1, 2)),
                      method = "t.test") +
   theme_classic()
-ggsave(
-  filename = "../figure6_D_UJ_score_target_specificity.pdf",
-  height = 6, width = 6)
 ```
 
+### Figure 6E
 ```{r figure6_E}
 meta <- fread("../data/r222g_mutant/CSJ_signature_score_r222g_mutant_meta.tsv")
 score <- fread(
@@ -187,10 +174,6 @@ ggplot(aframe,
                      method = "t.test") +
   theme_classic() +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
-ggsave(filename = "../figure6_E_R222G_CJ_score.pdf",
-       height = 6,
-       width = 5)
-
 ```
 ```{r }
 score <- fread("../data/depmap/CSJ_signature_score_depmap.tsv")
@@ -216,7 +199,7 @@ lvs <- names(
 aframe$lineage <- factor(aframe$lineage, levels = lvs)
 ```
 
-
+### Figure 6F
 ```{r figure6_F}
 # Fibroblasts vs rest - Boxplot ####
 ggplot(aframe[aframe$lineage %in% good_tissues, ],
@@ -226,20 +209,16 @@ ggplot(aframe[aframe$lineage %in% good_tissues, ],
        x = "DHX15 Signature CSJ Score",
        y = "Lineage") +
   geom_boxplot(outlier.color = NA) + geom_jitter(height = .1, alpha = 0.5) +
-  scale_color_manual(values = c("black", "red"), name = "Normal") +
+  scale_color_manual(values = c("black", "blue"), name = "Normal") +
   ggpubr::stat_compare_means(
     comparisons = lapply(
       setdiff(
         intersect(
           lvs, good_tissues), "fibroblast"),
       function(x) c("fibroblast", x)), method = "t.test") + theme_classic()
-ggsave(
-  filename =
-  "../figure6_F_Depmap_CJ_score_across_tissues_boxplot.pdf",
-       height = 11,
-       width = 11)
 ```
 
+### Figure 6G
 ```{r Figure6_G}
 
 # Figure 6 G
@@ -256,12 +235,8 @@ ggplot(aframe[aframe$Group %in% c("Bottom 25%", "Top 25%"), ],
   ggpubr::stat_compare_means(comparisons = list(c("Bottom 25%", "Top 25%"))) +
   scale_color_manual(values = c("black", "red")) +
   theme_classic()
-
-ggsave(filename = "../figure6_G_Depmap_CNV_vs_CJ_score.pdf",
-       height = 5,
-       width = 4)
 ```
-
+### Figure 6H
 ```{r figure6_H}
 # Quartile low vs high CJ score vs dependency - BRCA only #####
 subm <- aframe[aframe$lineage == "breast", ]
@@ -281,9 +256,4 @@ ggplot(subm[subm$bins %in% c("Top 33%", "Bottom 33%"), ],
   ggpubr::stat_compare_means(comparisons = list(c("Bottom 33%", "Top 33%"))) +
   scale_color_manual(values = c("black", "red")) +
   theme_classic()
-
-ggsave(filename =
-         "../figure6_H_Depmap_UJ_vs_demeter2_BRCA_only.pdf",
-       height = 5,
-       width = 4)
 ```

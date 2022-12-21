@@ -14,6 +14,8 @@ library(viridis)
 
     ## Loading required package: viridisLite
 
+### Figure 6A
+
 ``` r
 # Define functions ####
 get_counts <- function(files, junxs) {
@@ -100,29 +102,19 @@ p <- pheatmap(tmp,
 
 ![](figure6_2_files/figure-markdown_github/Figure6_A-1.png)
 
-``` r
-ggsave(p, filename = "../LM2_SUM159_signature_heatmap.pdf",
-height = 6, width = 4)
-```
+### Figure 6C
 
 ``` r
-score <- read.delim(
-  paste0("../data/dtag_experiments/",
-         "top_122_differential_usage_lm2_sum159_multi_dosage.tsv")
-  )
-samples <- gsub("_classified_junctions.tsv", "", fixed = TRUE, rownames(score))
-meta <- fread("../data/dtag_experiments/lm2_sum159_multi_dosage_meta.tsv")
-aframe <- data.frame(score, meta)
-aframe$condition <- paste(aframe$Clone, aframe$Dosage.value, aframe$Time.value)
-aframe$condition <- factor(
-  aframe$condition, levels =
-    unique(aframe$condition[order(aframe$Dosage.value, aframe$Time.value)]))
-tmp <- aframe[aframe$Clone == "D12", ]
-afit <- summary(lm(tmp$score ~ as.numeric(as.factor(tmp$Dosage.value))))
+score <- fread(paste0("../data/dtag_experiments/",
+         "CSJ_signature_score_sum159_dosage_score.tsv"))
+meta <- fread(
+  "../data/dtag_experiments/CSJ_signature_score_sum159_dosage_meta.tsv")
+aframe <- data.frame(meta, score)
+afit <- summary(lm(aframe$score ~ as.numeric(as.factor(aframe$Dosage.value))))
 pval <- signif(coefficients(afit)[2, 4], 2)
 
 # Figure 6 C
-ggplot(aframe[aframe$Clone == "D12", ],
+ggplot(aframe,
        aes(factor(Dosage.value), score)) +
   labs(title = "SUM159 FKBP-DHX15",
        subtitle = paste("SUM159 D12 9hr - ordinal model P:", pval),
@@ -132,12 +124,8 @@ ggplot(aframe[aframe$Clone == "D12", ],
   theme_classic()
 ```
 
-![](figure6_2_files/figure-markdown_github/figure6_C-1.png)
-
-``` r
-ggsave(filename = "../SUM159_dosage_effect_UJ_score.pdf",
-       height = 5, width = 6)
-```
+![](figure6_2_files/figure-markdown_github/figure6_C-1.png) \### Figure
+6D
 
 ``` r
 # UJ score vs target specificity ####
@@ -174,11 +162,7 @@ ggplot(aframe,
 
 ![](figure6_2_files/figure-markdown_github/figure6_D-1.png)
 
-``` r
-ggsave(
-  filename = "../figure6_D_UJ_score_target_specificity.pdf",
-  height = 6, width = 6)
-```
+### Figure 6E
 
 ``` r
 meta <- fread("../data/r222g_mutant/CSJ_signature_score_r222g_mutant_meta.tsv")
@@ -203,12 +187,6 @@ ggplot(aframe,
     ## [1] FALSE
 
 ![](figure6_2_files/figure-markdown_github/figure6_E-1.png)
-
-``` r
-ggsave(filename = "../figure6_E_R222G_CJ_score.pdf",
-       height = 6,
-       width = 5)
-```
 
 ``` r
 score <- fread("../data/depmap/CSJ_signature_score_depmap.tsv")
@@ -252,6 +230,8 @@ lvs <- names(
 aframe$lineage <- factor(aframe$lineage, levels = lvs)
 ```
 
+### Figure 6F
+
 ``` r
 # Fibroblasts vs rest - Boxplot ####
 ggplot(aframe[aframe$lineage %in% good_tissues, ],
@@ -261,7 +241,7 @@ ggplot(aframe[aframe$lineage %in% good_tissues, ],
        x = "DHX15 Signature CSJ Score",
        y = "Lineage") +
   geom_boxplot(outlier.color = NA) + geom_jitter(height = .1, alpha = 0.5) +
-  scale_color_manual(values = c("black", "red"), name = "Normal") +
+  scale_color_manual(values = c("black", "blue"), name = "Normal") +
   ggpubr::stat_compare_means(
     comparisons = lapply(
       setdiff(
@@ -274,13 +254,7 @@ ggplot(aframe[aframe$lineage %in% good_tissues, ],
 
 ![](figure6_2_files/figure-markdown_github/figure6_F-1.png)
 
-``` r
-ggsave(
-  filename =
-  "../figure6_F_Depmap_CJ_score_across_tissues_boxplot.pdf",
-       height = 11,
-       width = 11)
-```
+### Figure 6G
 
 ``` r
 # Figure 6 G
@@ -307,19 +281,8 @@ ggplot(aframe[aframe$Group %in% c("Bottom 25%", "Top 25%"), ],
 
     ## Warning: Removed 199 rows containing missing values (`geom_point()`).
 
-![](figure6_2_files/figure-markdown_github/Figure6_G-1.png)
-
-``` r
-ggsave(filename = "../figure6_G_Depmap_CNV_vs_CJ_score.pdf",
-       height = 5,
-       width = 4)
-```
-
-    ## Warning: Removed 199 rows containing non-finite values (`stat_boxplot()`).
-
-    ## Warning: Removed 199 rows containing non-finite values (`stat_signif()`).
-
-    ## Warning: Removed 199 rows containing missing values (`geom_point()`).
+![](figure6_2_files/figure-markdown_github/Figure6_G-1.png) \### Figure
+6H
 
 ``` r
 # Quartile low vs high CJ score vs dependency - BRCA only #####
@@ -345,10 +308,3 @@ ggplot(subm[subm$bins %in% c("Top 33%", "Bottom 33%"), ],
     ## [1] FALSE
 
 ![](figure6_2_files/figure-markdown_github/figure6_H-1.png)
-
-``` r
-ggsave(filename =
-         "../figure6_H_Depmap_UJ_vs_demeter2_BRCA_only.pdf",
-       height = 5,
-       width = 4)
-```
