@@ -1,6 +1,6 @@
 ---
-title: "figure_6"
-output: html_document
+title: "figure_6_script"
+output: md_document
 ---
 
 ```{r setup, include=FALSE}
@@ -45,17 +45,8 @@ calculate_score <- function(counts, ujs, kis) {
 
 # Load data for LM2 & SUM159 heatmap ####
 prefix <- "../data/dtag_experiments/"
-meta <- readxl::read_excel(paste(prefix, "Sample metadata.xlsx", sep = ""))
-meta <- meta[meta$Target == "DHX15" & meta$`Cell line` %in% c(
-  "MDA-MB231-LM2", "SUM159"), ]
-meta <- meta[meta$Clone %in% c("G10", "D12") & meta$`Experiment name` %in% c(
-  "AB943-AB1026_DHX8_16_15", "DHX15_D5_D12_G10_dTAG13") &
-               meta$`Time value` == 9, ]
-meta <- meta[meta$`Dosage value` %in% c(0, 50, 500), ]
-meta <- meta[-which(meta$`Dosage value` == 50 & meta$`Cell line` == "SUM159"), ]
-meta <- meta[-which(
-  meta$`Cell line` == "MDA-MB231-LM2" &
-    meta$`Experiment name` == "DHX15_D5_D12_G10_dTAG13"), ]
+meta <- fread("../data/dtag_experiments/meta_12_dtag.tsv")
+
 name_list <- c("SUM159_D12_dTag13_DHX15_0nM_9hrs-1_classified_junctions.tsv",
                "SUM159_D12_dTag13_DHX15_0nM_9hrs-2_classified_junctions.tsv",
                "SUM159_D12_dTag13_DHX15_0nM_9hrs-3_classified_junctions.tsv",
@@ -69,7 +60,8 @@ name_list <- c("SUM159_D12_dTag13_DHX15_0nM_9hrs-1_classified_junctions.tsv",
                "LM2_G10_dTag13_DHX15_50nM_9hrs-2_classified_junctions.tsv",
                "LM2_G10_dTag13_DHX15_50nM_9hrs-3_classified_junctions.tsv")
 files <- unlist(lapply(name_list, function(x) paste(prefix, x, sep = "")))
-dhx15_specific <- read.delim("../data/dtag_experiments/differential_usage_table.tsv")
+dhx15_specific <- read.delim(
+  "../data/dtag_experiments/differential_usage_table.tsv")
 dhx15_specific <- dhx15_specific[-grep("X", dhx15_specific$sum159.uj), ]
 ujs <- dhx15_specific$sum159.uj[which(
   dhx15_specific$lm2.coef > 1 & dhx15_specific$sum159.coef > 1)]
@@ -114,12 +106,11 @@ height = 6, width = 4)
 
 ```{r figure6_C}
 score <- read.delim(
-  "../data/dtag_experiments/top_122_differential_usage_lm2_sum159_multi_dosage.tsv")
+  paste0("../data/dtag_experiments/",
+         "top_122_differential_usage_lm2_sum159_multi_dosage.tsv")
+  )
 samples <- gsub("_classified_junctions.tsv", "", fixed = TRUE, rownames(score))
-
-meta <- readxl::read_excel("../data/dtag_experiments/Sample metadata.xlsx")
-meta <- meta[match(samples, meta$`Sample basename`), ]
-
+meta <- fread("../data/dtag_experiments/lm2_sum159_multi_dosage_meta.tsv")
 aframe <- data.frame(score, meta)
 aframe$condition <- paste(aframe$Clone, aframe$Dosage.value, aframe$Time.value)
 aframe$condition <- factor(
@@ -143,24 +134,12 @@ ggsave(filename = "../SUM159_dosage_effect_UJ_score.pdf",
 ```
 
 ```{r figure6_D}
-
 # UJ score vs target specificity ####
-score <- read.delim(
-  "../data/dtag_experiments/top_122_differential_usage_other_splicing_factors.tsv")
-
-samples <- gsub("_classified_junctions.tsv", "", fixed = TRUE, rownames(score))
-samples <- gsub("_SJ.out.tab", "", fixed = TRUE, samples)
-
-meta <- read.delim("../data/dtag_experiments/all_targets_metadata.tsv")
-meta <- meta[match(samples, meta$Sample.basename), ]
-
+meta <- fread(
+  "../data/dtag_experiments/CSJ_signature_score_splicing_genes_meta.tsv")
+score <- fread(
+  "../data/dtag_experiments/CSJ_signature_score_splicing_genes_score.tsv")
 aframe <- data.frame(score, meta)
-aframe$condition <- paste(aframe$Dosage.value, aframe$Time.value)
-aframe$condition <- factor(
-  aframe$condition, levels = unique(
-    aframe$condition[order(aframe$Dosage.value, aframe$Time.value)]))
-aframe <- aframe[aframe$Time.value %in% c(9, 9.5), ]
-aframe <- aframe[aframe$Dosage.value >= 200 | aframe$Dosage.value == 0, ]
 
 farben <- c(U2AF2 = "#9268AC",
             DDX46 = "#8C574C",
@@ -170,10 +149,6 @@ farben <- c(U2AF2 = "#9268AC",
             AQR = "#F57E20",
             DHX38 = "#D779B1",
             DHX15 = "#1F77B4")
-
-aframe <- aframe[aframe$Target %in% names(farben), ]
-aframe$Target <- factor(aframe$Target,
-                        levels = names(farben))
 # Figure 6 D
 ggplot(aframe,
        aes(factor(Dosage.value), score, color = Target)) +
@@ -193,36 +168,13 @@ ggsave(
 ```
 
 ```{r figure6_E}
-# R222G mutants ####
-score <- read.delim("../data/r222g_mutant/CSJ_signature_score_r222g_mutant.tsv")
-samples <- gsub("_SJ.out.tab", "", fixed = TRUE, rownames(score))
+meta <- fread("../data/r222g_mutant/CSJ_signature_score_r222g_mutant_meta.tsv")
+score <- fread(
+  "../data/r222g_mutant/CSJ_signature_score_r222g_mutant_score.tsv")
+aframe <- data.frame(meta, score)
 
-meta <- read.delim("../data/r222g_mutant/r222g_mutant_metadata.txt")
-meta <- meta[match(samples, meta$Sample.display.name), ]
-
-aframe <- data.frame(score, meta)
-aframe$condition <- paste(aframe$Clone, aframe$Dosage.value, aframe$Time.value)
-aframe$condition <- factor(
-  aframe$condition, levels = unique(
-    aframe$condition[order(aframe$Dosage.value, aframe$Time.value)]))
-
-# WT Veh 24hr, GFP dTAG 6hr, WT dTAG 6hr, R222G dTAG 6hr
-ok <- which(aframe$condition %in% c("GFP Trt 6",
-                                    "GFP Veh 24",
-                                    "R222G Trt 6",
-                                    "R222G Veh 24",
-                                    "WT Trt 6",
-                                    "WT Veh 24"))
-
-aframe <- aframe[ok, ]
-
-aframe$condition <- factor(aframe$condition,
-                           levels = c("WT Veh 24",
-                                      "GFP Trt 6",
-                                      "WT Trt 6",
-                                      "R222G Trt 6"))
 # Figure 6 E
-ggplot(aframe[!is.na(aframe$condition), ],
+ggplot(aframe,
        aes(condition, score)) +
   labs(title = "Human R222G data",
        y = "DHX15 Signature CSJ Score") +
@@ -242,7 +194,7 @@ ggsave(filename = "../figure6_E_R222G_CJ_score.pdf",
 score <- fread("../data/depmap/CSJ_signature_score_depmap.tsv")
 sample_sra <- fread("../data/depmap/depmap_metadata.tsv")
 cnv <- fread("../data/depmap/depmap_cnv.tsv")
-demeter2 <-fread("../data/depmap/depmap_demeter2.tsv")
+demeter2 <- fread("../data/depmap/depmap_demeter2.tsv")
 
 aframe <- data.frame(sample_sra, demeter2, cnv)
 aframe$cnv_loss <- "no"
