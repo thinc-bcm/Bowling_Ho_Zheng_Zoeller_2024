@@ -14,7 +14,7 @@ Bowling_Ho_Zheng_2022
 
 Code to reproduce the main figures can be found here:
 * Figure 1
-* Figure 2
+* [Figure 2](https://github.com/thinc-bcm/Bowling_Ho_Zheng_2022/blob/main/code/figure_2/figure_2.md)
 * [Figure 3](https://github.com/thinc-bcm/Bowling_Ho_Zheng_2022/blob/main/code/figure_3/figure3.md) - Bla bla bla
 * Figure 4
 * Figure 5
