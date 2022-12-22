@@ -107,7 +107,8 @@ ggplot(tmp_3ss, aes(score, color = type)) +
 
 ### Figure 3 H
 
-(H) Cryptic splice sites used upon DHX15 degradation have higher splice prediction scores compared to surrounding nucleotides. SpliceAI analysis was used to predict the splice site probability of each nucleotide in a 200bp window centered on a cryptic splice site. Shown is the mean SpliceAI probability score for 100 randomly selected cryptic splice sites. Splice donor and acceptor probability were calculated for canonical 3’ss and canonical 5’ss, respectively, as a negative control
+
+Cryptic splice sites used upon DHX15 degradation have higher splice prediction scores compared to surrounding nucleotides. SpliceAI analysis was used to predict the splice site probability of each nucleotide in a 200bp window centered on a cryptic splice site. Shown is the mean SpliceAI probability score for 100 randomly selected cryptic splice sites. Splice donor and acceptor probability were calculated for canonical 3’ss and canonical 5’ss, respectively, as a negative control
 
 ### Figure 3 H Cryptic 5'ss
 
@@ -151,7 +152,11 @@ p4 <- ggplot(
 grid.arrange(p3, p4, ncol = 2, nrow = 1)
 
 ```
+
+
 ### Figure 3 H Cryptic 3'ss
+
+
 ```{r 3_H_Cryptic_3ss}
 p1 <- ggplot(
   read_file_average(match5_acc_left_500), aes(x = position, y = predict)) +
@@ -174,7 +179,10 @@ p2 <- ggplot(
 
 grid.arrange(p1, p2, ncol = 2, nrow = 1)
 ```
+
+
 ### Figure 3 I
+
 
 (I – J) Cryptic splice sites used upon DHX15 degradation are weaker than canonical splice sites. Empirical cumulative distribution curves of SpliceAI predicted splice site strength of both cryptic and canonical (I) 5’ss and (J) 3’ss are plotted. A leftward shift in the black curve indicates decreased splice site strength of cryptic splice junctions.
 
@@ -197,7 +205,10 @@ ggplot(tmp_donor_spliceai, aes(value, color = variable)) +
   scale_color_manual(values = c("black", "red"), name = "category") +
   theme_classic()
 ```
+
+
 ### Figure 3 J
+
 
 ```{r 3_J}
 ggplot(tmp_acceptor_spliceai, aes(value, color = variable)) +

@@ -103,14 +103,13 @@ ggplot(tmp_3ss, aes(score, color = type)) +
 
 ### Figure 3 H
 
-1.  Cryptic splice sites used upon DHX15 degradation have higher splice
-    prediction scores compared to surrounding nucleotides. SpliceAI
-    analysis was used to predict the splice site probability of each
-    nucleotide in a 200bp window centered on a cryptic splice site.
-    Shown is the mean SpliceAI probability score for 100 randomly
-    selected cryptic splice sites. Splice donor and acceptor probability
-    were calculated for canonical 3’ss and canonical 5’ss, respectively,
-    as a negative control
+Cryptic splice sites used upon DHX15 degradation have higher splice
+prediction scores compared to surrounding nucleotides. SpliceAI analysis
+was used to predict the splice site probability of each nucleotide in a
+200bp window centered on a cryptic splice site. Shown is the mean
+SpliceAI probability score for 100 randomly selected cryptic splice
+sites. Splice donor and acceptor probability were calculated for
+canonical 3’ss and canonical 5’ss, respectively, as a negative control
 
 ### Figure 3 H Cryptic 5’ss
 
@@ -154,8 +153,9 @@ p4 <- ggplot(
 grid.arrange(p3, p4, ncol = 2, nrow = 1)
 ```
 
-![](figure3_files/figure-markdown_github/3_H_Cryptic_5ss-1.png) \#\#\#
-Figure 3 H Cryptic 3’ss
+![](figure3_files/figure-markdown_github/3_H_Cryptic_5ss-1.png)
+
+### Figure 3 H Cryptic 3’ss
 
 ``` r
 p1 <- ggplot(
@@ -180,8 +180,9 @@ p2 <- ggplot(
 grid.arrange(p1, p2, ncol = 2, nrow = 1)
 ```
 
-![](figure3_files/figure-markdown_github/3_H_Cryptic_3ss-1.png) \#\#\#
-Figure 3 I
+![](figure3_files/figure-markdown_github/3_H_Cryptic_3ss-1.png)
+
+### Figure 3 I
 
 (I – J) Cryptic splice sites used upon DHX15 degradation are weaker than
 canonical splice sites. Empirical cumulative distribution curves of
@@ -208,7 +209,9 @@ ggplot(tmp_donor_spliceai, aes(value, color = variable)) +
   theme_classic()
 ```
 
-![](figure3_files/figure-markdown_github/3_I-1.png) \#\#\# Figure 3 J
+![](figure3_files/figure-markdown_github/3_I-1.png)
+
+### Figure 3 J
 
 ``` r
 ggplot(tmp_acceptor_spliceai, aes(value, color = variable)) +
