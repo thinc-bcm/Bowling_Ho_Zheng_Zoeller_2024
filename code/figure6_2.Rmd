@@ -18,6 +18,8 @@ library(readxl)
 library(viridis)
 ```
 
+## Figure 6
+
 ### Figure 6A
 ```{r Figure6_A}
 # Define functions ####
@@ -123,7 +125,11 @@ ggplot(aframe,
   geom_boxplot() + geom_point() +
   theme_classic()
 ```
+
+
+
 ### Figure 6D
+
 ```{r figure6_D}
 # UJ score vs target specificity ####
 meta <- fread(
