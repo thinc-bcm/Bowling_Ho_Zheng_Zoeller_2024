@@ -86,6 +86,8 @@ ggplot(tmp_5ss, aes(score, color = type)) +
   scale_color_manual(values = c("black", "red"), name = "category") +
   theme_classic()
 ```
+
+
 ### Figure 3 F
 
 ```{r 3_F}
@@ -101,6 +103,8 @@ ggplot(tmp_3ss, aes(score, color = type)) +
   scale_color_manual(values = c("black", "red"), name = "category") +
   theme_classic()
 ```
+
+
 ### Figure 3 H
 
 (H) Cryptic splice sites used upon DHX15 degradation have higher splice prediction scores compared to surrounding nucleotides. SpliceAI analysis was used to predict the splice site probability of each nucleotide in a 200bp window centered on a cryptic splice site. Shown is the mean SpliceAI probability score for 100 randomly selected cryptic splice sites. Splice donor and acceptor probability were calculated for canonical 3’ss and canonical 5’ss, respectively, as a negative control
