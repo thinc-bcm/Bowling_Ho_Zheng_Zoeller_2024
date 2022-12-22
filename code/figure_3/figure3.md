@@ -1,7 +1,6 @@
 ## Figure 3
 
 ``` r
-# Load R libs ####
 library(ggplot2)
 library(data.table)
 library(gridExtra)
@@ -14,10 +13,9 @@ MaxENT predicted splice site strength of both cryptic and canonical (E)
 indicates decreased splice site strength of cryptic splice junctions.
 
 ``` r
-# Load SpliceAI predictions donor ####
 preds <- read.csv(
-  "../../data/figure3/spliceai_donor_greater_3.csv", row.names = 1)
-info <- read.delim("../../data/figure3/match_3_plus.tsv")
+  "../../data/genomic_sequences/spliceai_donor_greater_3.csv", row.names = 1)
+info <- read.delim("../../data/genomic_sequences/match_3_plus.tsv")
 info$id <- paste(info$chrom, info$start, info$end, info$strand, sep = "|")
 ok <- match(unique(info$id), info$id)
 preds <- data.frame(info[ok, ], preds[ok, ])
@@ -30,8 +28,8 @@ tmp_donor_spliceai$variable <- gsub("KI_donor", "canonical", fixed = TRUE,
                                     tmp_donor_spliceai$variable)
 
 preds <- read.csv(
-  "../../data/figure3/spliceai_acceptor_greater_3.csv", row.names = 1)
-info <- read.delim("../../data/figure3/match_5_plus.tsv")
+  "../../data/genomic_sequences/spliceai_acceptor_greater_3.csv", row.names = 1)
+info <- read.delim("../../data/genomic_sequences/match_5_plus.tsv")
 info$id <- paste(info$chrom, info$start, info$end, info$strand, sep = "|")
 ok <- match(unique(info$id), info$id)
 preds <- data.frame(info[ok, ], preds[ok, ])
@@ -43,18 +41,17 @@ tmp_acceptor_spliceai$variable <- gsub("UJ_match_5", "cryptic", fixed = TRUE,
 tmp_acceptor_spliceai$variable <- gsub("KI_acceptor", "canonical", fixed = TRUE,
                                        tmp_acceptor_spliceai$variable)
 
-# Load Brian MaxEnt data ####
-ki_3ss <- read.delim("../../data/figure3/3ss_canon_seqs.tsv",
+ki_3ss <- read.delim("../../data/genomic_sequences/3ss_canon_seqs.tsv",
                      row.names = 1)[, 1]
 
-uj_3ss <- read.delim("../../data/figure3/3ss_trt_seqs.tsv",
+uj_3ss <- read.delim("../../data/genomic_sequences/3ss_trt_seqs.tsv",
                      row.names = 1)
 uj_3ss <- unlist(uj_3ss[, grep("rand", colnames(uj_3ss))])
 
-ki_5ss <- read.delim("../../data/figure3/5ss_canon_seqs.tsv",
+ki_5ss <- read.delim("../../data/genomic_sequences/5ss_canon_seqs.tsv",
                      row.names = 1)[, 1]
 
-uj_5ss <- read.delim("../../data/figure3/5ss_trt_seqs.tsv",
+uj_5ss <- read.delim("../../data/genomic_sequences/5ss_trt_seqs.tsv",
                      row.names = 1)
 uj_5ss <- unlist(uj_5ss[, grep("rand", colnames(uj_5ss))])
 
@@ -114,11 +111,10 @@ canonical 3’ss and canonical 5’ss, respectively, as a negative control
 ### Figure 3 H Cryptic 5’ss
 
 ``` r
-match5_acc_left_500 <- fread("../../data/figure3/match_5_acc_left_500")
-match5_acc_right_500 <- fread("../../data/figure3/match_5_acc_righ_500")
-
-match3_do_left_500 <- fread("../../data/figure3/match_3_do_left_500")
-match3_do_right_500 <- fread("../../data/figure3/match_3_do_righ_500")
+match5_acc_left_500 <- fread("../../data/genomic_sequences/match_5_acc_left_500")
+match5_acc_right_500 <- fread("../../data/genomic_sequences/match_5_acc_righ_500")
+match3_do_left_500 <- fread("../../data/genomic_sequences/match_3_do_left_500")
+match3_do_right_500 <- fread("../../data/genomic_sequences/match_3_do_righ_500")
 
 read_file_average <- function(match3_acc) {
   m3_acc <- match3_acc[2:501, 1:10000]
@@ -148,8 +144,6 @@ p4 <- ggplot(
   ylab("spliceAI donor probability") +
   ylim(0, 0.5) +
   theme_classic()
-
-
 grid.arrange(p3, p4, ncol = 2, nrow = 1)
 ```
 
@@ -191,7 +185,6 @@ SpliceAI predicted splice site strength of both cryptic and canonical
 indicates decreased splice site strength of cryptic splice junctions.
 
 ``` r
-# Combine into one plot ####
 ggplot(tmp_donor_spliceai, aes(value, color = variable)) +
   labs(title = "5ss",
        x = "SpliceAI donor probability",
