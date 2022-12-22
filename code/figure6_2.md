@@ -1,8 +1,4 @@
 ``` r
-knitr::opts_chunk$set(echo = TRUE)
-```
-
-``` r
 # Load R libs ####
 library(ggplot2)
 library(ggpubr)
@@ -11,8 +7,6 @@ library(pheatmap)
 library(readxl)
 library(viridis)
 ```
-
-    ## Loading required package: viridisLite
 
 ## Figure 6
 
@@ -191,25 +185,7 @@ ggplot(aframe,
 
 ``` r
 score <- fread("../data/depmap/CSJ_signature_score_depmap.tsv")
-```
-
-    ## Warning in fread("../data/depmap/CSJ_signature_score_depmap.tsv"): Detected
-    ## 1 column names but the data has 2 columns (i.e. invalid file). Added 1 extra
-    ## default column name for the first column which is guessed to be row names or an
-    ## index. Use setnames() afterwards if this guess is not correct, or fix the file
-    ## write command that created the file to create a valid file.
-
-``` r
 sample_sra <- fread("../data/depmap/depmap_metadata.tsv")
-```
-
-    ## Warning in require_bit64_if_needed(ans): Some columns are type 'integer64'
-    ## but package bit64 is not installed. Those columns will print as strange
-    ## looking floating point data. There is no need to reload the data. Simply
-    ## install.packages('bit64') to obtain the integer64 print method and print the
-    ## data again.
-
-``` r
 cnv <- fread("../data/depmap/depmap_cnv.tsv")
 demeter2 <- fread("../data/depmap/depmap_demeter2.tsv")
 
@@ -275,12 +251,6 @@ ggplot(aframe[aframe$Group %in% c("Bottom 25%", "Top 25%"), ],
 ```
 
     ## [1] FALSE
-
-    ## Warning: Removed 199 rows containing non-finite values (`stat_boxplot()`).
-
-    ## Warning: Removed 199 rows containing non-finite values (`stat_signif()`).
-
-    ## Warning: Removed 199 rows containing missing values (`geom_point()`).
 
 ![](figure6_2_files/figure-markdown_github/Figure6_G-1.png) \### Figure
 6H
