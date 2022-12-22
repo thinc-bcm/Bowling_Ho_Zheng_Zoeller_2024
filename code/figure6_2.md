@@ -14,6 +14,8 @@ library(viridis)
 
     ## Loading required package: viridisLite
 
+## Figure 6
+
 ### Figure 6A
 
 ``` r
@@ -124,8 +126,9 @@ ggplot(aframe,
   theme_classic()
 ```
 
-![](figure6_2_files/figure-markdown_github/figure6_C-1.png) \### Figure
-6D
+![](figure6_2_files/figure-markdown_github/figure6_C-1.png)
+
+### Figure 6D
 
 ``` r
 # UJ score vs target specificity ####
