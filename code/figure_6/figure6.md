@@ -1,15 +1,4 @@
----
-title: "figure_6_script"
-output: 
-  md_document:
-    variant: markdown_github
----
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
-```
-
-```{r }
+``` r
 # Load R libs ####
 library(ggplot2)
 library(ggpubr)
@@ -21,14 +10,16 @@ library(viridis)
 
 ## Figure 6
 
+### Figure 6 A
 
-### Figure 6A
+DHX15 signature cryptic splice sites are spliced at increased proportion
+upon DHX15 degradation in both SUM159 and LM2 FKBP-DHX15 cells. (A) Heat
+map depicts proportion of cryptic splicing in SUM159 and LM2 FKBP-DHX15
+cells with DMSO or dTAG13 treatment. Average proportion of cryptic
+junction usage across the 122 signature junctions was calculated as the
+“DHX15 signature CSJ score”.
 
-
-DHX15 signature cryptic splice sites are spliced at increased proportion upon DHX15 degradation in both SUM159 and LM2 FKBP-DHX15 cells. (A) Heat map depicts proportion of cryptic splicing in SUM159 and LM2 FKBP-DHX15 cells with DMSO or dTAG13 treatment. Average proportion of cryptic junction usage across the 122 signature junctions was calculated as the “DHX15 signature CSJ score”. 
-
-
-```{r Figure6_A}
+``` r
 # Define functions ####
 get_counts <- function(files, junxs) {
   counts <- do.call(cbind, lapply(files, function(file) {
@@ -56,8 +47,8 @@ calculate_score <- function(counts, ujs, kis) {
 }
 
 # Load data for LM2 & SUM159 heatmap ####
-prefix <- "../data/dtag_experiments/"
-meta <- fread("../data/dtag_experiments/sum159_lm2_meta.tsv")
+prefix <- "../../data/dtag_experiments/"
+meta <- fread("../../data/dtag_experiments/sum159_lm2_meta.tsv")
 
 name_list <- c("SUM159_D12_dTag13_DHX15_0nM_9hrs-1_classified_junctions.tsv",
                "SUM159_D12_dTag13_DHX15_0nM_9hrs-2_classified_junctions.tsv",
@@ -73,7 +64,7 @@ name_list <- c("SUM159_D12_dTag13_DHX15_0nM_9hrs-1_classified_junctions.tsv",
                "LM2_G10_dTag13_DHX15_50nM_9hrs-3_classified_junctions.tsv")
 files <- unlist(lapply(name_list, function(x) paste(prefix, x, sep = "")))
 dhx15_specific <- read.delim(
-  "../data/dtag_experiments/differential_csj_frequency_table.tsv")
+  "../../data/dtag_experiments/differential_csj_frequency_table.tsv")
 dhx15_specific <- dhx15_specific[-grep("X", dhx15_specific$sum159.uj), ]
 ujs <- dhx15_specific$sum159.uj[which(
   dhx15_specific$lm2.coef > 1 & dhx15_specific$sum159.coef > 1)]
@@ -112,19 +103,22 @@ p <- pheatmap(tmp,
          breaks = seq(-2, 2, length = 100))
 ```
 
+![](figure6_files/figure-markdown_github/Figure6_A-1.png)
 
-### Figure 6C
+### Figure 6 C
 
+Increased levels of DHX15 degradation results in dose-dependent increase
+in DHX15 signature CSJ score. Box plot shows CSJ score upon DMSO and
+increasing dTAG13 treatment (median (line), Q1 to Q3 quartile values
+(boundaries of the box), and range (whiskers), n=3 biological replicates
+per condition) p=6.8e-06 by linear model where dosage is encoded as an
+ordinal variable.
 
-Increased levels of DHX15 degradation results in dose-dependent increase in DHX15 signature CSJ score. Box plot shows CSJ score upon DMSO and increasing dTAG13 treatment (median (line), Q1 to Q3 quartile values (boundaries of the box), and range (whiskers), n=3 biological replicates per condition) p=6.8e-06 by linear model where dosage is encoded as an ordinal variable.
-
-
-
-```{r figure6_C}
-score <- fread(paste0("../data/dtag_experiments/",
+``` r
+score <- fread(paste0("../../data/dtag_experiments/",
          "CSJ_signature_score_sum159_dosage_score.tsv"))
 meta <- fread(
-  "../data/dtag_experiments/CSJ_signature_score_sum159_dosage_meta.tsv")
+  "../../data/dtag_experiments/CSJ_signature_score_sum159_dosage_meta.tsv")
 aframe <- data.frame(meta, score)
 afit <- summary(lm(aframe$score ~ as.numeric(as.factor(aframe$Dosage.value))))
 pval <- signif(coefficients(afit)[2, 4], 2)
@@ -140,21 +134,21 @@ ggplot(aframe,
   theme_classic()
 ```
 
+![](figure6_files/figure-markdown_github/figure6_C-1.png)
 
+### Figure 6 D
 
-### Figure 6D
+Degradation of DHX15 uniquely increases DHX15 signature CSJ score. Box
+plot represents CSJ score after 9hrs of target degradation (median
+(line), Q1 to Q3 quartile values (boundaries of the box), and range
+(whiskers), n=3 biological replicates per condition).
 
-
-Degradation of DHX15 uniquely increases DHX15 signature CSJ score. Box plot represents CSJ score after 9hrs of target degradation (median (line), Q1 to Q3 quartile values (boundaries of the box), and range (whiskers), n=3 biological replicates per condition).
-
-
-
-```{r figure6_D}
+``` r
 # UJ score vs target specificity ####
 meta <- fread(
-  "../data/dtag_experiments/CSJ_signature_score_splicing_genes_meta.tsv")
+  "../../data/dtag_experiments/CSJ_signature_score_splicing_genes_meta.tsv")
 score <- fread(
-  "../data/dtag_experiments/CSJ_signature_score_splicing_genes_score.tsv")
+  "../../data/dtag_experiments/CSJ_signature_score_splicing_genes_score.tsv")
 aframe <- data.frame(score, meta)
 
 farben <- c(U2AF2 = "#9268AC",
@@ -178,17 +172,22 @@ ggplot(aframe,
   theme_classic()
 ```
 
+    ## [1] FALSE
 
-### Figure 6E
+![](figure6_files/figure-markdown_github/figure6_D-1.png)
 
+### Figure 6 E
 
-DHX15(R222G) does not suppress increased DHX15 signature CSJ score induced by DHX15 degradation. Box plot represents CSJ score after 6hrs of dTAG treatment (median (line), Q1 to Q3 quartile values (boundaries of the box), and range (whiskers), n=3 biological replicates per condition).
+DHX15(R222G) does not suppress increased DHX15 signature CSJ score
+induced by DHX15 degradation. Box plot represents CSJ score after 6hrs
+of dTAG treatment (median (line), Q1 to Q3 quartile values (boundaries
+of the box), and range (whiskers), n=3 biological replicates per
+condition).
 
-
-```{r figure6_E}
-meta <- fread("../data/r222g_mutant/CSJ_signature_score_r222g_mutant_meta.tsv")
+``` r
+meta <- fread("../../data/r222g_mutant/CSJ_signature_score_r222g_mutant_meta.tsv")
 score <- fread(
-  "../data/r222g_mutant/CSJ_signature_score_r222g_mutant_score.tsv")
+  "../../data/r222g_mutant/CSJ_signature_score_r222g_mutant_score.tsv")
 aframe <- data.frame(meta, score)
 
 # Figure 6 E
@@ -204,11 +203,16 @@ ggplot(aframe,
   theme_classic() +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
 ```
-```{r }
-score <- fread("../data/depmap/CSJ_signature_score_depmap.tsv")
-sample_sra <- fread("../data/depmap/depmap_metadata.tsv")
-cnv <- fread("../data/depmap/depmap_cnv.tsv")
-demeter2 <- fread("../data/depmap/depmap_demeter2.tsv")
+
+    ## [1] FALSE
+
+![](figure6_files/figure-markdown_github/figure6_E-1.png)
+
+``` r
+score <- fread("../../data/depmap/CSJ_signature_score_depmap.tsv")
+sample_sra <- fread("../../data/depmap/depmap_metadata.tsv")
+cnv <- fread("../../data/depmap/depmap_cnv.tsv")
+demeter2 <- fread("../../data/depmap/depmap_demeter2.tsv")
 
 aframe <- data.frame(sample_sra, demeter2, cnv)
 aframe$cnv_loss <- "no"
@@ -228,14 +232,14 @@ lvs <- names(
 aframe$lineage <- factor(aframe$lineage, levels = lvs)
 ```
 
+### Figure 6 F
 
-### Figure 6F
+DHX15 signature is upregulated in cancer cells vs normal. Box plot
+depicts DHX15 signature CSJ score in panel of tumor and normal cell
+lines (median (line), Q1 to Q3 quartile values (boundaries of the box),
+and range (whiskers).
 
-
-DHX15 signature is upregulated in cancer cells vs normal. Box plot depicts DHX15 signature CSJ score in panel of tumor and normal cell lines (median (line), Q1 to Q3 quartile values (boundaries of the box), and range (whiskers).
-
-
-```{r figure6_F}
+``` r
 # Fibroblasts vs rest - Boxplot ####
 ggplot(aframe[aframe$lineage %in% good_tissues, ],
        aes(DHX15_score, lineage, color = (lineage == "fibroblast"))) +
@@ -253,15 +257,19 @@ ggplot(aframe[aframe$lineage %in% good_tissues, ],
       function(x) c("fibroblast", x)), method = "t.test") + theme_classic()
 ```
 
+    ## [1] FALSE
 
-### Figure 6G
+![](figure6_files/figure-markdown_github/figure6_F-1.png)
 
+### Figure 6 G
 
-DHX15 signature CSJ score correlates with dependency on DHX15 pan-cancer. Box plot of DHX15 dependency (measured by Demeter2 score of shRNA screen) for cell lines in the bottom and top quartile of CSJ score (median (line), Q1 to Q3 quartile values (boundaries of the box), and range (whiskers)).
+DHX15 signature CSJ score correlates with dependency on DHX15
+pan-cancer. Box plot of DHX15 dependency (measured by Demeter2 score of
+shRNA screen) for cell lines in the bottom and top quartile of CSJ score
+(median (line), Q1 to Q3 quartile values (boundaries of the box), and
+range (whiskers)).
 
-
-```{r Figure6_G}
-
+``` r
 # Figure 6 G
 aframe$Group <- aframe$bins
 aframe$Group <- gsub("low", "Bottom 25%", aframe$Group)
@@ -278,14 +286,19 @@ ggplot(aframe[aframe$Group %in% c("Bottom 25%", "Top 25%"), ],
   theme_classic()
 ```
 
+    ## [1] FALSE
 
-### Figure 6H
+![](figure6_files/figure-markdown_github/Figure6_G-1.png)
 
+### Figure 6 H
 
-DHX15 signature CSJ score correlates with dependency on DHX15 in breast cancer cell lines. Box plot of DHX15 dependency (measured by Demeter2 score of shRNA screen) for cell lines in the bottom and top tertile of CSJ score (median (line), Q1 to Q3 quartile values (boundaries of the box), and range (whiskers).
+DHX15 signature CSJ score correlates with dependency on DHX15 in breast
+cancer cell lines. Box plot of DHX15 dependency (measured by Demeter2
+score of shRNA screen) for cell lines in the bottom and top tertile of
+CSJ score (median (line), Q1 to Q3 quartile values (boundaries of the
+box), and range (whiskers).
 
-
-```{r figure6_H}
+``` r
 # Quartile low vs high CJ score vs dependency - BRCA only #####
 subm <- aframe[aframe$lineage == "breast", ]
 
@@ -305,3 +318,7 @@ ggplot(subm[subm$bins %in% c("Top 33%", "Bottom 33%"), ],
   scale_color_manual(values = c("black", "red")) +
   theme_classic()
 ```
+
+    ## [1] FALSE
+
+![](figure6_files/figure-markdown_github/figure6_H-1.png)
