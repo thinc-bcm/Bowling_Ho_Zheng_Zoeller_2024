@@ -5,9 +5,10 @@ output:
     variant: markdown_github
 ---
 
-```{r setup}
-knitr::opts_chunk$set(echo = TRUE)
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 ```
+
 ```{r }
 # Load R libs ####
 library(ggplot2)
