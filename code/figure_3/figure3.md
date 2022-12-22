@@ -81,7 +81,9 @@ ggplot(tmp_5ss, aes(score, color = type)) +
   theme_classic()
 ```
 
-![](figure3_files/figure-markdown_github/3_E-1.png) \#\#\# Figure 3 F
+![](figure3_files/figure-markdown_github/3_E-1.png)
+
+### Figure 3 F
 
 ``` r
 ggplot(tmp_3ss, aes(score, color = type)) +
@@ -97,7 +99,9 @@ ggplot(tmp_3ss, aes(score, color = type)) +
   theme_classic()
 ```
 
-![](figure3_files/figure-markdown_github/3_F-1.png) \#\#\# Figure 3 H
+![](figure3_files/figure-markdown_github/3_F-1.png)
+
+### Figure 3 H
 
 1.  Cryptic splice sites used upon DHX15 degradation have higher splice
     prediction scores compared to surrounding nucleotides. SpliceAI
