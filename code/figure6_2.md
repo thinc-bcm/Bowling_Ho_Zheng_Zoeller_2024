@@ -12,6 +12,13 @@ library(viridis)
 
 ### Figure 6A
 
+DHX15 signature cryptic splice sites are spliced at increased proportion
+upon DHX15 degradation in both SUM159 and LM2 FKBP-DHX15 cells. (A) Heat
+map depicts proportion of cryptic splicing in SUM159 and LM2 FKBP-DHX15
+cells with DMSO or dTAG13 treatment. Average proportion of cryptic
+junction usage across the 122 signature junctions was calculated as the
+“DHX15 signature CSJ score”.
+
 ``` r
 # Define functions ####
 get_counts <- function(files, junxs) {
@@ -100,6 +107,13 @@ p <- pheatmap(tmp,
 
 ### Figure 6C
 
+Increased levels of DHX15 degradation results in dose-dependent increase
+in DHX15 signature CSJ score. Box plot shows CSJ score upon DMSO and
+increasing dTAG13 treatment (median (line), Q1 to Q3 quartile values
+(boundaries of the box), and range (whiskers), n=3 biological replicates
+per condition) p=6.8e-06 by linear model where dosage is encoded as an
+ordinal variable.
+
 ``` r
 score <- fread(paste0("../data/dtag_experiments/",
          "CSJ_signature_score_sum159_dosage_score.tsv"))
@@ -123,6 +137,11 @@ ggplot(aframe,
 ![](figure6_2_files/figure-markdown_github/figure6_C-1.png)
 
 ### Figure 6D
+
+Degradation of DHX15 uniquely increases DHX15 signature CSJ score. Box
+plot represents CSJ score after 9hrs of target degradation (median
+(line), Q1 to Q3 quartile values (boundaries of the box), and range
+(whiskers), n=3 biological replicates per condition).
 
 ``` r
 # UJ score vs target specificity ####
@@ -158,6 +177,12 @@ ggplot(aframe,
 ![](figure6_2_files/figure-markdown_github/figure6_D-1.png)
 
 ### Figure 6E
+
+DHX15(R222G) does not suppress increased DHX15 signature CSJ score
+induced by DHX15 degradation. Box plot represents CSJ score after 6hrs
+of dTAG treatment (median (line), Q1 to Q3 quartile values (boundaries
+of the box), and range (whiskers), n=3 biological replicates per
+condition).
 
 ``` r
 meta <- fread("../data/r222g_mutant/CSJ_signature_score_r222g_mutant_meta.tsv")
@@ -209,6 +234,11 @@ aframe$lineage <- factor(aframe$lineage, levels = lvs)
 
 ### Figure 6F
 
+DHX15 signature is upregulated in cancer cells vs normal. Box plot
+depicts DHX15 signature CSJ score in panel of tumor and normal cell
+lines (median (line), Q1 to Q3 quartile values (boundaries of the box),
+and range (whiskers).
+
 ``` r
 # Fibroblasts vs rest - Boxplot ####
 ggplot(aframe[aframe$lineage %in% good_tissues, ],
@@ -233,6 +263,12 @@ ggplot(aframe[aframe$lineage %in% good_tissues, ],
 
 ### Figure 6G
 
+DHX15 signature CSJ score correlates with dependency on DHX15
+pan-cancer. Box plot of DHX15 dependency (measured by Demeter2 score of
+shRNA screen) for cell lines in the bottom and top quartile of CSJ score
+(median (line), Q1 to Q3 quartile values (boundaries of the box), and
+range (whiskers)).
+
 ``` r
 # Figure 6 G
 aframe$Group <- aframe$bins
@@ -252,8 +288,15 @@ ggplot(aframe[aframe$Group %in% c("Bottom 25%", "Top 25%"), ],
 
     ## [1] FALSE
 
-![](figure6_2_files/figure-markdown_github/Figure6_G-1.png) \### Figure
-6H
+![](figure6_2_files/figure-markdown_github/Figure6_G-1.png)
+
+### Figure 6H
+
+DHX15 signature CSJ score correlates with dependency on DHX15 in breast
+cancer cell lines. Box plot of DHX15 dependency (measured by Demeter2
+score of shRNA screen) for cell lines in the bottom and top tertile of
+CSJ score (median (line), Q1 to Q3 quartile values (boundaries of the
+box), and range (whiskers).
 
 ``` r
 # Quartile low vs high CJ score vs dependency - BRCA only #####
