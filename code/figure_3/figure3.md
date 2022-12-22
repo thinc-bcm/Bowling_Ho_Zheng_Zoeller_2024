@@ -7,6 +7,12 @@ library(data.table)
 library(gridExtra)
 ```
 
+(E, F) Cryptic splice sites used upon DHX15 degradation are weaker than
+canonical splice sites. Empirical cumulative distribution curves of
+MaxENT predicted splice site strength of both cryptic and canonical (E)
+5’ss and (F) 3’ss are plotted. A leftward shift in the black curve
+indicates decreased splice site strength of cryptic splice junctions.
+
 ``` r
 # Load SpliceAI predictions donor ####
 preds <- read.csv(
@@ -59,12 +65,7 @@ tmp_5ss <- rbind(data.frame(type = "canonical", score = ki_5ss),
                       data.frame(type = "cryptic", score = uj_5ss))
 ```
 
-(E, F) Cryptic splice sites used upon DHX15 degradation are weaker than
-canonical splice sites. Empirical cumulative distribution curves of
-MaxENT predicted splice site strength of both cryptic and canonical (E)
-5’ss and (F) 3’ss are plotted. A leftward shift in the black curve
-indicates decreased splice site strength of cryptic splice junctions.
-\#\#\# Figure 3 E
+### Figure 3 E
 
 ``` r
 ggplot(tmp_5ss, aes(score, color = type)) +
@@ -175,13 +176,14 @@ p2 <- ggplot(
 grid.arrange(p1, p2, ncol = 2, nrow = 1)
 ```
 
-![](figure3_files/figure-markdown_github/3_H_Cryptic_3ss-1.png) (I – J)
-Cryptic splice sites used upon DHX15 degradation are weaker than
+![](figure3_files/figure-markdown_github/3_H_Cryptic_3ss-1.png) \#\#\#
+Figure 3 I
+
+(I – J) Cryptic splice sites used upon DHX15 degradation are weaker than
 canonical splice sites. Empirical cumulative distribution curves of
 SpliceAI predicted splice site strength of both cryptic and canonical
 (I) 5’ss and (J) 3’ss are plotted. A leftward shift in the black curve
 indicates decreased splice site strength of cryptic splice junctions.
-\#\#\# Figure 3 I
 
 ``` r
 # Combine into one plot ####
