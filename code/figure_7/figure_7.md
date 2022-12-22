@@ -1,25 +1,15 @@
----
-title: "figure_7"
-date: "2022-12-20"
-output:
-  md_document:
-    variant: markdown_github
----
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-# Load R libs ####
-library(ggplot2)
-library(patchwork)
-library(ggpubr)
-```
-
 ## Figure 7
+
 ### Figure 7 A
 
-Genome-wide association identifies multiple alleles associated with DHX15 signature CSJ score in BRCA TCGA cohort. Manhattan plot depicts association of gene CNV change with DHX15 CSJ score. Genes with negative association suggests that loss of a given gene correlates with increased CSJ score. Chromosomal loci with association <2 were investigated further.
+Genome-wide association identifies multiple alleles associated with
+DHX15 signature CSJ score in BRCA TCGA cohort. Manhattan plot depicts
+association of gene CNV change with DHX15 CSJ score. Genes with negative
+association suggests that loss of a given gene correlates with increased
+CSJ score. Chromosomal loci with association \<2 were investigated
+further.
 
-```{r figure_7_A}
+``` r
 #Load GWAS results ####
 tcga <- read.delim("../../data/tcga_brca/tcga_brca_cnv_csj_genome_wide_association.tsv")
 
@@ -57,11 +47,19 @@ ggplot(aframe,
         )
 ```
 
+![](figure_7_files/figure-markdown_github/figure_7_A-1.png)
+
 ### Figure 7 B
 
-Loss of chromosomal bands associated with increased DHX15 signature CSJ score occurs in ~22% of BRCA patients, with Basal tumors experiencing the greatest percentage of loss. Chromosomal bands (5q34, 4p15, 19q13, 14q23, and 10q26) with association <2 were investigated for their frequency of loss across TCGA tumors. Pie chart depicts the percent of tumors with deletion of none, one, or multiple of these genes across all tumors or by individual subtype.
+Loss of chromosomal bands associated with increased DHX15 signature CSJ
+score occurs in \~22% of BRCA patients, with Basal tumors experiencing
+the greatest percentage of loss. Chromosomal bands (5q34, 4p15, 19q13,
+14q23, and 10q26) with association \<2 were investigated for their
+frequency of loss across TCGA tumors. Pie chart depicts the percent of
+tumors with deletion of none, one, or multiple of these genes across all
+tumors or by individual subtype.
 
-```{r figure_7_b}
+``` r
 #Load TCGA CNV data
 load("../../data/tcga_brca/tcga_brca_cnv.RData")
 
@@ -91,6 +89,38 @@ dels <- apply(cnv_assay[genes, match(ok, colnames(cnv_assay))], 2, function(x) {
   if (sum(x) == 1) return(genes[which(x == 1)])
 })
 subtype <- meta$paper_BRCA_Subtype_PAM50[match(ok, colnames(cnv_assay))]
+```
+
+    ## Loading required package: S4Vectors
+
+    ## Loading required package: stats4
+
+    ## Loading required package: BiocGenerics
+
+    ## 
+    ## Attaching package: 'BiocGenerics'
+
+    ## The following objects are masked from 'package:stats':
+    ## 
+    ##     IQR, mad, sd, var, xtabs
+
+    ## The following objects are masked from 'package:base':
+    ## 
+    ##     anyDuplicated, aperm, append, as.data.frame, basename, cbind,
+    ##     colnames, dirname, do.call, duplicated, eval, evalq, Filter, Find,
+    ##     get, grep, grepl, intersect, is.unsorted, lapply, Map, mapply,
+    ##     match, mget, order, paste, pmax, pmax.int, pmin, pmin.int,
+    ##     Position, rank, rbind, Reduce, rownames, sapply, setdiff, sort,
+    ##     table, tapply, union, unique, unsplit, which.max, which.min
+
+    ## 
+    ## Attaching package: 'S4Vectors'
+
+    ## The following objects are masked from 'package:base':
+    ## 
+    ##     expand.grid, I, unname
+
+``` r
 chr_bands <- c(DHX15 = "4p15",
                WWC1 = "5q34",
                DHX34 = "19q13",
@@ -138,12 +168,16 @@ p <- lapply(names(brca), function(x) {
   (p[[3]] + p[[4]])
 ```
 
+![](figure_7_files/figure-markdown_github/figure_7_b-1.png)
 
 ### Figure 7 C
 
-Loss of DHX15 correlates with increased DHX15 signature CSJ score in TCGA BRCA tumors. Box plot depicts CSJ score of tumors with (CNV<2) and without (CNV>=2) DHX15 loss (median (line), Q1 to Q3 quartile values (boundaries of the box), and range (whiskers).
+Loss of DHX15 correlates with increased DHX15 signature CSJ score in
+TCGA BRCA tumors. Box plot depicts CSJ score of tumors with (CNV\<2) and
+without (CNV\>=2) DHX15 loss (median (line), Q1 to Q3 quartile values
+(boundaries of the box), and range (whiskers).
 
-```{r figure_7_c}
+``` r
 score <- unlist(lapply(colnames(usage), function(x) {
   ok <- which(ki_counts[, x] > 100)
   mean(usage[ok, x])
@@ -170,14 +204,20 @@ ggplot(aframe3, aes(x = cnv, y = score, color = cnv)) +
   theme_bw() +
   theme(legend.position = "none",
         aspect.ratio = 2)
-
 ```
+
+    ## [1] FALSE
+
+![](figure_7_files/figure-markdown_github/figure_7_c-1.png)
 
 ### Figure 7 D
 
-Loss of SUGP1 correlates with increased DHX15 signature CSJ score in TCGA BRCA tumors. Box plot depicts CSJ score of tumors with (CNV<2) and without (CNV>=2) SUGP1 loss (median (line), Q1 to Q3 quartile values (boundaries of the box), and range (whiskers).
+Loss of SUGP1 correlates with increased DHX15 signature CSJ score in
+TCGA BRCA tumors. Box plot depicts CSJ score of tumors with (CNV\<2) and
+without (CNV\>=2) SUGP1 loss (median (line), Q1 to Q3 quartile values
+(boundaries of the box), and range (whiskers).
 
-```{r figure_7_d}
+``` r
 aframe2 <- data.frame(score = score[ok],
                      deletions = dels,
                      SUGP1_cnv = cnv_assay["SUGP1",
@@ -198,3 +238,7 @@ ggplot(aframe2, aes(x = cnv, y = score, color = cnv)) +
   theme(legend.position = "none",
         aspect.ratio = 2)
 ```
+
+    ## [1] FALSE
+
+![](figure_7_files/figure-markdown_github/figure_7_d-1.png)
