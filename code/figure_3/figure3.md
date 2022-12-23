@@ -6,6 +6,32 @@ library(data.table)
 library(gridExtra)
 ```
 
+### Figure 3 D
+
+Predicted branch point strength is similar between cryptic and canonical
+splice sites. Empirical cumulative distribution curves of predicted
+branch point strength are plotted.
+
+``` r
+bp_str <- read.delim('../../data/bpp_outs/bp_strength_ecdf.tsv')
+
+ggplot(bp_str, aes(score, color = type)) +
+  labs(title = "Branchpoint strength",
+       x = "BPP branchpoint strength",
+       y = "Density") +
+  geom_vline(xintercept = 
+               mean(bp_str$score[bp_str$type =="cryptic"]),
+             linetype = 'dashed', color = "red") +
+  geom_vline(xintercept = 
+               mean(bp_str$score[bp_str$type =="canonical"]),
+             linetype = 'dashed', color = "black") +
+  stat_ecdf() +
+  scale_color_manual(values = c("black", "red"), name = "category") +
+  theme_classic()
+```
+
+![](figure3_files/figure-markdown_github/unnamed-chunk-2-1.png)
+
 (E, F) Cryptic splice sites used upon DHX15 degradation are weaker than
 canonical splice sites. Empirical cumulative distribution curves of
 MaxENT predicted splice site strength of both cryptic and canonical (E)
