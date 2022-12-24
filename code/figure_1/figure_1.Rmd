@@ -1,0 +1,138 @@
+---
+title: "figure_1"
+date: "2022-12-23"
+output:
+  md_document:
+    variant: markdown_github
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+
+## Figure 1
+### Figure 1 B
+
+Spliceosome component degradation leads to increased RNA misprocessing. RNA misprocessing analysis was performed on RNA from SUM159-FKBP cell lines treated with dTAG13 or dTAGV1 for 9hrs. RNA misprocessing ratio is calculated on a single intron basis as the difference in proportion of mis-spliced fragments versus properly spliced fragments. Volcano plot represents the misprocessing ratio between DMSO and dTAG-treated samples. Color indicates number of introns.
+
+```{r figure_1_B, warning=FALSE}
+# Load libraries
+library(ggplot2)
+library(pheatmap)
+library(viridisLite)
+
+# Load data
+filelist <- c(
+  "../../data/dtag_experiments/U2AF2/diff_misproc_tabs/U2AF2_SUM159_C5_250nM_vs_0nM_dTagV1_9hr.csv",
+  "../../data/dtag_experiments/DDX46/diff_misproc_tabs/DDX46_SUM159_H5_200nM_vs_0nM_dTag13_9hr.csv",
+  "../../data/dtag_experiments/SF3B1/diff_misproc_tabs/SF3B1_SUM159_D12_200nM_vs_0nM_dTag13_9.5hr.csv",
+  "../../data/dtag_experiments/PRPF8/diff_misproc_tabs/PRPF8_SUM159_G6_250nM_vs_0nM_dTagV1_9hr.csv",
+  "../../data/dtag_experiments/DHX16/diff_misproc_tabs/DHX16_SUM159_H6_400nM_vs_0nM_dTag13_9hr.csv",
+  "../../data/dtag_experiments/AQR/diff_misproc_tabs/AQR_SUM159_B11_500nM_vs_0nM_dTagV1_9hr.csv",
+  "../../data/dtag_experiments/DHX38/diff_misproc_tabs/DHX38_SUM159_D9_400nM_vs_0nM_dTag13_9hr.csv",
+  "../../data/dtag_experiments/DHX15/diff_misproc_tabs/DHX15_SUM159_D12_500nM_vs_0nM_dTag13_9hr.csv"
+)
+
+exp_introns <- read.delim("../../data/dtag_experiments/exp_introns.tsv",
+  header = FALSE)
+
+# Figure 1B plots
+plots <- list()
+
+for (i in 1:length(filelist)){
+  filnam <- strsplit(filelist[i], "/")[[1]]
+  filnam <- filnam[length(filnam)]
+  filnam <- strsplit(filnam, split = "_", fixed = TRUE)[[1]][1]
+  test <- read.delim(filelist[i], row.names = 1)
+  test_filt <- test[exp_introns$V1, c("binomial_test_adj_p", "delta_ratio")]
+  test_filt[test_filt$binomial_test_adj_p <= 1e-100,
+            "binomial_test_adj_p"] <- 1e-100
+  plots[[i]] <- ggplot(test_filt, aes(delta_ratio,
+                                      -log10(binomial_test_adj_p))) +
+    geom_hex(bins = 50) +
+    xlim(-0.4, 0.5) +
+    scale_fill_viridis_c(
+      trans = "log", 
+      breaks = c(1, 10, 100, 1000),
+      limits = c(1, 1000),
+      na.value = "#FDE725FF") +
+    xlab("Delta ratio") +
+    ylab("-log10 p-value") +
+    geom_vline(xintercept = 0, linetype = "dashed") +
+    ggtitle(filnam) +
+    theme_classic() +
+    theme(legend.position = "none")
+}
+
+final <- gridExtra::grid.arrange(
+  plots[[1]],
+  plots[[2]],
+  plots[[3]],
+  plots[[4]] + theme(legend.position = "right"),
+  plots[[5]],
+  plots[[6]],
+  plots[[7]],
+  plots[[8]], 
+  ncol = 4)
+
+```
+
+### Figure 1 E
+
+DHX15 has a unique misprocessing signature compared to other targets. Dimension reduction analysis of misprocessing scores was used to identify target clusters, suggesting similar signatures of misprocessing. Three clusters were identified: U2-complex (SF3B1, U2AF2, and DDX46), catalytic spliceosome (DHX38, DHX16, AQR, and PRPF8), and DHX15 in a distinct cluster.
+
+```{r figure_1_E}
+prop_v2 <- read.table(
+  "../../data/dtag_experiments/intron_misproc_control_norm.tsv", 
+  sep = "\t", header = TRUE, row.names = 1)
+
+meta2 <- read.table(
+  "../../data/dtag_experiments/intron_heatmap_metadata.tsv", 
+  sep = "\t", header = TRUE, row.names = 1)
+
+introns <- c(scan("../../data/dtag_experiments/u2_introns_top_100.txt",
+                  what = "", sep = "\n"), 
+             scan("../../data/dtag_experiments/catalytic_spliceosome_introns_top_100.txt",
+                  what = "", sep = "\n"), 
+             scan("../../data/dtag_experiments/dhx15_introns_top_100.txt",
+                  what = "", sep = "\n"))
+
+
+ann_colors <- list(
+  Target = c(
+    "AQR" = "#ff7f0e",
+    "DDX46" = "#8c564b",
+    "DHX15" = "#1f77b4",
+    "DHX16" = "#17becf",
+    "DHX38" = "#e377c2",
+    "PRPF8" = "#2ca02c",
+    "SF3B1" = "#d62728",
+    "U2AF2" = "#9467bd"
+  ),
+  Dosage.value = c(
+    "Veh" = "#edf8fb",
+    "High dose" = "#2ca25f"
+  ),
+  Time.value = c(
+    "6" = "#edf8fb",
+    "9" = "#a0b2d4",
+    "12" = "#8856a7"
+  )
+)
+
+pheatmap(prop_v2[introns, ],
+    scale = "row", 
+    breaks = seq(-1, 3, length = 100),
+    gaps_col = c(54, 126),
+    gaps_row = c(100, 200),
+    cluster_rows = FALSE,
+    col = magma(100),
+    cluster_cols = FALSE,
+    annotation_col = meta2[colnames(prop_v2),
+                           c("Target", "Dosage.value", "Time.value")],
+    show_rownames = FALSE, show_colnames = FALSE,
+    annotation_colors = ann_colors,
+    border_color = NA
+)
+```
