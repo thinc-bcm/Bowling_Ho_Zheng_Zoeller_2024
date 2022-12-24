@@ -99,10 +99,7 @@ p3 <- ggplot(test_filt,
 final <- grid.arrange(p2, p1, p3, ncol = 3, nrow = 1)
 ```
 
-    ## Warning: Removed 1 rows containing non-finite values (stat_binhex).
-    ## Removed 1 rows containing non-finite values (stat_binhex).
-
-![](figure_5_files/figure-markdown_github/unnamed-chunk-1-1.png)
+![](figure_5_files/figure-markdown_github/figure_5_D-1.png)
 
 ### Figure 5 I
 

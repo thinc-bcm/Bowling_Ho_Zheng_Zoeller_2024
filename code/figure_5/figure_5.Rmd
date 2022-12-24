@@ -16,14 +16,14 @@ knitr::opts_chunk$set(echo = TRUE)
 
 DHX15R222G does not rescue RNA misprocessing induced by DHX15 degradation. RNA misprocessing analysis was performed on RNA from LM2-FKBP cell lines expressing GFP, DHX15WT or DHX15R222G and treated with DMSO or dTAG13. RNA misprocessing ratio is calculated on a single intron basis as the difference in proportion of mis-spliced fragments versus properly spliced fragments. Volcano plot represents the misprocessing ratio between DMSO and dTAG-treated samples. Color indicates number of introns.
 
-```{r figure_5_D, warning=FALSE}
+```{r }
 library(ggplot2)
 library(pheatmap)
 library(gridExtra)
 library(viridisLite)
 ```
 
-```{r }
+```{r figure_5_D, warning=FALSE}
 filelist <- c(
   "../../data/r222g_mutant/diff_misproc_tabs/DHX15_LM2__WT_vs_WT_Trt_vs_Veh__6hr.csv",
   "../../data/r222g_mutant/diff_misproc_tabs/DHX15_LM2__GFP_vs_WT_Trt_vs_Veh__6hr.csv",
