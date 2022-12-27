@@ -13,10 +13,10 @@ Bowling_Ho_Zheng_2022
 ```
 
 Code to reproduce the main figures can be found here:
-* [Figure 1]
-* [Figure 2](https://github.com/thinc-bcm/Bowling_Ho_Zheng_2022/blob/main/code/figure_2/figure_2.md)
-* [Figure 3](https://github.com/thinc-bcm/Bowling_Ho_Zheng_2022/blob/main/code/figure_3/figure3.md)
-* [Figure 4]
-* [Figure 5]
-* [Figure 6](https://github.com/thinc-bcm/Bowling_Ho_Zheng_2022/blob/main/code/figure_6/figure6.md)
-* [Figure 7](https://github.com/thinc-bcm/Bowling_Ho_Zheng_2022/blob/main/code/figure_7/figure_7.md)
+* [Figure 1](https://github.com/thinc-bcm/Bowling_Ho_Zheng_2022/tree/main/code/figure_1)
+* [Figure 2](https://github.com/thinc-bcm/Bowling_Ho_Zheng_2022/blob/main/code/figure_2)
+* [Figure 3](https://github.com/thinc-bcm/Bowling_Ho_Zheng_2022/blob/main/code/figure_3)
+* [Figure 4](https://github.com/thinc-bcm/Bowling_Ho_Zheng_2022/blob/main/code/figure_4)
+* [Figure 5](https://github.com/thinc-bcm/Bowling_Ho_Zheng_2022/blob/main/code/figure_5)
+* [Figure 6](https://github.com/thinc-bcm/Bowling_Ho_Zheng_2022/blob/main/code/figure_6)
+* [Figure 7](https://github.com/thinc-bcm/Bowling_Ho_Zheng_2022/blob/main/code/figure_7)
