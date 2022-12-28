@@ -8,10 +8,7 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-# Load R libs ####
-library(ggplot2)
-library(patchwork)
-library(ggpubr)
+
 ```
 
 ## Figure 7
@@ -20,6 +17,11 @@ library(ggpubr)
 Genome-wide association identifies multiple alleles associated with DHX15 signature CSJ score in BRCA TCGA cohort. Manhattan plot depicts association of gene CNV change with DHX15 CSJ score. Genes with negative association suggests that loss of a given gene correlates with increased CSJ score. Chromosomal loci with association <2 were investigated further.
 
 ```{r figure_7_A}
+# Load R libs ####
+library(ggplot2)
+library(patchwork)
+library(ggpubr)
+
 #Load GWAS results ####
 tcga <- read.delim("../../data/tcga_brca/tcga_brca_cnv_csj_genome_wide_association.tsv")
 
