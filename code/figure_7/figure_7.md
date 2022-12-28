@@ -10,6 +10,11 @@ CSJ score. Chromosomal loci with association \<2 were investigated
 further.
 
 ``` r
+# Load R libs ####
+library(ggplot2)
+library(patchwork)
+library(ggpubr)
+
 #Load GWAS results ####
 tcga <- read.delim("../../data/tcga_brca/tcga_brca_cnv_csj_genome_wide_association.tsv")
 
