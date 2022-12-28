@@ -9,6 +9,59 @@ quartile values (boundaries of the box), and range (whiskers), n=3
 biological replicates per condition).
 
 ``` r
+# Load library
+library(data.table)
+library(GenomicRanges)
+```
+
+    ## Loading required package: stats4
+
+    ## Loading required package: BiocGenerics
+
+    ## 
+    ## Attaching package: 'BiocGenerics'
+
+    ## The following objects are masked from 'package:stats':
+    ## 
+    ##     IQR, mad, sd, var, xtabs
+
+    ## The following objects are masked from 'package:base':
+    ## 
+    ##     anyDuplicated, aperm, append, as.data.frame, basename, cbind,
+    ##     colnames, dirname, do.call, duplicated, eval, evalq, Filter, Find,
+    ##     get, grep, grepl, intersect, is.unsorted, lapply, Map, mapply,
+    ##     match, mget, order, paste, pmax, pmax.int, pmin, pmin.int,
+    ##     Position, rank, rbind, Reduce, rownames, sapply, setdiff, sort,
+    ##     table, tapply, union, unique, unsplit, which.max, which.min
+
+    ## Loading required package: S4Vectors
+
+    ## 
+    ## Attaching package: 'S4Vectors'
+
+    ## The following objects are masked from 'package:data.table':
+    ## 
+    ##     first, second
+
+    ## The following objects are masked from 'package:base':
+    ## 
+    ##     expand.grid, I, unname
+
+    ## Loading required package: IRanges
+
+    ## 
+    ## Attaching package: 'IRanges'
+
+    ## The following object is masked from 'package:data.table':
+    ## 
+    ##     shift
+
+    ## Loading required package: GenomeInfoDb
+
+``` r
+library(ggplot2)
+library(patchwork)
+
 # Load metadata ####
 meta <- read.csv("../../data/dtag_experiments/figure_2_meta.csv", row.names = 1)
 meta$path <- gsub(" ", "_", meta$Sample.display.name)

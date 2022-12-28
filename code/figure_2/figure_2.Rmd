@@ -8,10 +8,6 @@ date: "2022-12-20"
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-library(data.table)
-library(GenomicRanges)
-library(ggplot2)
-library(patchwork)
 ```
 
 ## Figure 2
@@ -20,6 +16,12 @@ library(patchwork)
 Increased levels of DHX15 degradation results in dose-dependent cryptic splice junction accumulation. Box plot quantifies number of cryptic splice junctions upon DMSO and dTAG13 treatment (median (line), Q1 to Q3 quartile values (boundaries of the box), and range (whiskers), n=3 biological replicates per condition).
 
 ```{r figure_2_d}
+# Load library
+library(data.table)
+library(GenomicRanges)
+library(ggplot2)
+library(patchwork)
+
 # Load metadata ####
 meta <- read.csv("../../data/dtag_experiments/figure_2_meta.csv", row.names = 1)
 meta$path <- gsub(" ", "_", meta$Sample.display.name)
