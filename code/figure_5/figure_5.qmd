@@ -1,0 +1,273 @@
+---
+title: "Figure 5"
+author: Joseph R. Zoeller
+format:
+  pdf:
+    toc: true
+execute: 
+  warning: false
+---
+
+```{r}
+library(data.table)
+library(EnvStats)
+library(ggplot2)
+library(ggpubr)
+library(pheatmap)
+library(viridisLite)
+
+theme_set(
+  theme_classic() +
+    theme(
+      text = element_text(family = "ArialMT", color = "black"),
+      axis.ticks = element_line(color = "black"), 
+      axis.text = element_text(color = "black")
+    )
+)
+```
+
+# Figure 5
+
+```{r}
+meta_dtag <- fread("../../data/dtag_experiments/meta_dtag_w_signatures.tsv", sep = "\t")
+```
+
+## 5A
+
+```{r}
+load("../../data/dtag_experiments/dhx15_junctions_manuscript_dtag_samples.RData")
+
+meta_sub <- meta_dtag[Target == "DHX15" & Time.value == 9]
+meta_sub <- meta_sub[!(Cell.line == "SUM159" & Dosage.value == 50)]
+
+usage <- uj_counts / (uj_counts + ki_counts)
+usage_sub <- usage[, colnames(usage) %in% meta_sub$Sample.basename]
+
+# Create signature heatmap ####
+meta_sub[Dosage.value == 0, Treatment := "Veh"]
+meta_sub[Dosage.value > 0, Treatment := "dTAG"]
+
+scale <- function(matr) t(apply(matr, 1, function(x) (x - mean(x)) / sd(x)))
+
+scaled_usage <- cbind(
+  scale(usage[, meta_sub[Cell.line == "SUM159"]$Sample.basename]),
+  scale(usage[, meta_sub[Cell.line == "MDA-MB231-LM2"]$Sample.basename])
+  )
+meta_sub <- data.frame(
+  meta_sub[, .(Cell.line, Treatment, dhx15_score)],
+  row.names = meta_sub$Sample.basename
+  )
+
+p <- pheatmap(scaled_usage,
+         cluster_cols = FALSE,
+         cluster_rows = FALSE,
+         show_rownames = FALSE,
+         show_colnames = FALSE,
+         scale = "none",
+         gaps_col = 6,
+         color = viridisLite::inferno(100),
+         annotation_colors = list(
+           Treatment = c(dTAG = "red", Veh = "black"),
+           Cell.line = c(SUM159 = "blue", `MDA-MB231-LM2` = "green")),
+         annotation_col = meta_sub,
+         breaks = seq(-2, 2, length = 100))
+```
+
+## 5B
+
+```{r}
+meta_sub <- meta_dtag[Time.value == 9 & Cell.line == "SUM159"]
+# exclude the medium dose value for each Target
+min_max_dose <- meta_sub[, .(
+  min_dose = min(Dosage.value),
+  max_dose = max(Dosage.value)
+  ),
+  by = Target]
+meta_sub <- merge(meta_sub, min_max_dose, by = "Target")
+meta_sub <- meta_sub[Dosage.value == min_dose | Dosage.value == max_dose]
+
+farben <- c(U2AF2 = "#9268AC",
+            DDX46 = "#8C574C",
+            SF3B1 = "#D52828",
+            PRPF8 = "#2DA048",
+            DHX16 = "#1DBFCF",
+            AQR = "#F57E20",
+            DHX38 = "#D779B1",
+            DHX15 = "#1F77B4")
+# Figure 6 D
+p <- ggplot(meta_sub,
+       aes(factor(Dosage.value), dhx15_score, color = Target)) +
+  labs(y = "DXH15 CSJ Signature",
+       x = "Dosage [nM]") +
+  facet_wrap(~ Target, scales = "free_x", nrow = 1) +
+  geom_boxplot() + geom_point() +
+  scale_color_manual(values = farben) +
+  stat_compare_means(comparisons = list(c(1, 2)),
+                     method = "t.test")
+
+p
+```
+
+## 5C
+
+```{r}
+meta <- fread("../../data/r222g_mutant/CSJ_signature_score_r222g_mutant_meta.tsv")
+score <- fread(
+  "../../data/r222g_mutant/CSJ_signature_score_r222g_mutant_score.tsv")
+aframe <- data.frame(meta, score)
+
+# Figure 6 E
+ggplot(aframe,
+       aes(condition, score)) +
+  labs(title = "Human R222G data",
+       y = "DHX15 Signature CSJ Score") +
+  geom_boxplot() + geom_point() +
+  stat_compare_means(comparisons = list(c(1, 2),
+                                        c(2, 3),
+                                        c(2, 4)),
+                     method = "t.test") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+```
+
+## 5D
+
+```{r}
+# metadata
+meta_tcga <- fread("../../data/tcga/meta_tcga_w_signatures.tsv")
+meta_tcga_cnv_gii <- fread("../../data/tcga/meta_tcga_cnv_w_covs.tsv")
+
+
+# GISTIC SCNA matrix
+load("../../data/tcga/gistic2_pancancer_gene_level_cn_20160128.RData")
+# convert column names to Sample ID's
+colnames(gistic_merged) <- sub("(-[^-]*){3}$", "", colnames(gistic_merged))
+
+idx <- intersect(colnames(gistic_merged), meta_tcga$Sample.ID)
+meta_tcga_cnv <- meta_tcga[match(idx, meta_tcga$Sample.ID), ]
+gistic_merged <- gistic_merged[, idx]
+```
+
+```{r}
+dhx15_cn <- data.table(
+  Sample.ID = colnames(gistic_merged),
+  dhx15_cn = gistic_merged["DHX15", ])
+meta_tcga_all_cnv <- merge(meta_tcga, dhx15_cn, by = "Sample.ID", all.x = TRUE)
+
+# select tumor and normal samples
+dt <- meta_tcga_all_cnv[Sample.Type %in% c("Primary Tumor", "Solid Tissue Normal")]
+# select patients with both tumor and normal samples, not two tumor samples
+ok <- names(which(table(dt$Case.ID) == 2))
+dt[Case.ID %in% ok, filter := length(unique(Sample.Type)), by = Case.ID]
+dt <- dt[filter == 2]
+
+dt <- merge(dt, meta_tcga_cnv_gii[, .(Case.ID, gii)], by = "Case.ID", all = FALSE)
+# pull CSJ residuals, assuming normal tissue has no genome instability
+dt <- dt[!is.na(gii)]
+dt[Sample.Type == "Solid Tissue Normal", gii := 0]
+dt[, resids := residuals(
+  lm(dhx15_score ~ gii, data = .SD, na.action = na.exclude)
+)]
+# order dt by Case.ID
+setorder(dt, Case.ID)
+
+# set order of levels for plotting
+dt[, Sample.Type := factor(
+  Sample.Type,
+  levels = c("Solid Tissue Normal", "Primary Tumor")
+)]
+```
+
+```{r}
+p <- ggplot(dt, aes(Sample.Type, dhx15_score)) +
+  labs(
+    title = "DHX15 CSJ for tumor and matched normals",
+    subtitle = "TCGA Pan-cancer",
+    y = "DHX15 CSJ Signature"
+  ) +
+  geom_boxplot() +
+  stat_n_text() +
+  stat_compare_means()
+```
+
+## 5E
+
+
+```{r}
+source("../../scripts/manhattan_plot.R")
+```
+
+```{r}
+p <- plot_assoc_gistic(
+  path_to_assoc_results = "../../data/tcga/dhx15_association_studies/gene_loss_pancancer.csv",
+  tissue = "pancancer",
+  signature = "DHX15"
+)
+p
+```
+
+## 5F
+
+```{r}
+dt <- data.table(
+  meta_tcga_cnv_gii,
+  dhx15_cn = gistic_merged["DHX15", meta_tcga_cnv_gii$Sample.ID]
+)
+# dt <- dt[complete.cases(dt)]
+dt[dhx15_cn < 0, cnv_cat := "CN < 0"]
+dt[dhx15_cn >= 0, cnv_cat := "CN >= 0"]
+dt[, cnv_cat := factor(cnv_cat, levels = c("CN >= 0", "CN < 0"))]
+
+p <- ggplot(dt, aes(cnv_cat, dhx15_score)) +
+  labs(
+    title = "DHX15 CSJ for CNV",
+    subtitle = "TCGA Pan-cancer",
+    y = "DHX15 CSJ Signature"
+  ) +
+  geom_boxplot() +
+  stat_compare_means()
+p
+```
+
+## 5H
+
+```{r}
+meta_tcga_mut <- fread("../../data/tcga/meta_tcga_w_signatures_and_mutations.tsv")
+
+# pie chart of SLIT2 loss and DHX15 loss
+meta_tcga_mut[, cat := "Normal"]
+meta_tcga_mut[DHX15_annot == "Loss" & SLIT2_annot == "Loss", cat := "Both Loss"]
+meta_tcga_mut[DHX15_annot == "Loss" & SLIT2_annot != "Loss", cat := "DHX15 Loss"]
+meta_tcga_mut[DHX15_annot != "Loss" & SLIT2_annot == "Loss", cat := "SLIT2 Loss"]
+meta_tcga_mut[, cat := factor(cat, levels = c("Normal", "SLIT2 Loss","DHX15 Loss", "Both Loss"))]
+
+p <- ggplot(meta_tcga_mut, aes(x = "", fill = cat)) +
+  geom_bar(width = 1) +
+  coord_polar("y") +
+  labs(
+    title = "DHX15 and SLIT2 copy number status",
+    subtitle = "TCGA Pan-cancer"
+  ) +
+  theme_void() +
+  theme(legend.position = "bottom")
+```
+
+## 5I
+
+```{r}
+# boxplot of SLIT2 annotations
+meta_tcga_mut[, SLIT2_annot := factor(SLIT2_annot, levels = c("Normal", "Mut", "Loss", "Both"))]
+p <- ggplot(meta_tcga_mut[SLIT2_annot != "Both"], aes(SLIT2_annot, dhx15_score)) +
+  labs(
+    title = "SLIT2 Aberrations",
+    subtitle = "TCGA Pan-cancer",
+    y = "DHX15 CSJ Signature"
+  ) +
+  geom_boxplot() +
+  stat_n_text() +
+  stat_compare_means(
+    comparisons = list(
+      c("Normal", "Mut"),
+      c("Normal", "Loss")
+    )
+  )
+```
