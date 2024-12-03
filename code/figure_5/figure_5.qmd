@@ -1,6 +1,5 @@
 ---
 title: "Figure 5"
-author: Joseph R. Zoeller
 format:
   pdf:
     toc: true
@@ -191,12 +190,8 @@ p <- ggplot(dt, aes(Sample.Type, dhx15_score)) +
 
 ## 5E
 
-
 ```{r}
 source("../../scripts/manhattan_plot.R")
-```
-
-```{r}
 p <- plot_assoc_gistic(
   path_to_assoc_results = "../../data/tcga/dhx15_association_studies/gene_loss_pancancer.csv",
   tissue = "pancancer",
@@ -212,14 +207,13 @@ dt <- data.table(
   meta_tcga_cnv_gii,
   dhx15_cn = gistic_merged["DHX15", meta_tcga_cnv_gii$Sample.ID]
 )
-# dt <- dt[complete.cases(dt)]
 dt[dhx15_cn < 0, cnv_cat := "CN < 0"]
 dt[dhx15_cn >= 0, cnv_cat := "CN >= 0"]
 dt[, cnv_cat := factor(cnv_cat, levels = c("CN >= 0", "CN < 0"))]
 
 p <- ggplot(dt, aes(cnv_cat, dhx15_score)) +
   labs(
-    title = "DHX15 CSJ for CNV",
+    title = "DHX15 CSJ by CN Group",
     subtitle = "TCGA Pan-cancer",
     y = "DHX15 CSJ Signature"
   ) +

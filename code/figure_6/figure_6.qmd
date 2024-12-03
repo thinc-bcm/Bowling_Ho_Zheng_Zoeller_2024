@@ -1,0 +1,194 @@
+---
+title: "Figure 6"
+format:
+  pdf:
+    toc: true
+execute: 
+  warning: false
+---
+
+# Figure 6
+
+## 6A
+
+```{r}
+source("../../scripts/manhattan_plot.R")
+p <- plot_assoc_gistic(
+  path_to_assoc_results = "../../data/tcga/dhx15_association_studies/gene_loss_pancancer.csv",
+  tissue = "pancancer",
+  signature = "DHX15",
+  gene_labels = c("DHX15", "RBM5", "AGGF1")
+)
+p
+```
+
+## 6B
+
+```{r}
+# metadata
+meta_tcga <- fread("../../data/tcga/meta_tcga_w_signatures.tsv")
+meta_tcga_cnv_gii <- fread("../../data/tcga/meta_tcga_cnv_w_covs.tsv")
+
+
+# GISTIC SCNA matrix
+load("../../data/tcga/gistic2_pancancer_gene_level_cn_20160128.RData")
+# convert column names to Sample ID's
+colnames(gistic_merged) <- sub("(-[^-]*){3}$", "", colnames(gistic_merged))
+
+idx <- intersect(colnames(gistic_merged), meta_tcga$Sample.ID)
+meta_tcga_cnv <- meta_tcga[match(idx, meta_tcga$Sample.ID), ]
+gistic_merged <- gistic_merged[, idx]
+```
+
+
+```{r}
+dt <- data.table(
+  meta_tcga_cnv_gii,
+  rbm5_cn = gistic_merged["RBM5", meta_tcga_cnv_gii$Sample.ID]
+)
+dt[rbm5_cn < 0, cnv_cat := "CN < 0"]
+dt[rbm5_cn >= 0, cnv_cat := "CN >= 0"]
+dt[, cnv_cat := factor(cnv_cat, levels = c("CN >= 0", "CN < 0"))]
+
+p <- ggplot(dt, aes(cnv_cat, dhx15_score)) +
+  labs(
+    title = "DHX15 CSJ by CN Group",
+    subtitle = "TCGA Pan-cancer",
+    y = "DHX15 CSJ Signature"
+  ) +
+  geom_boxplot() +
+  stat_compare_means()
+p
+```
+
+## 6D
+
+```{r}
+meta_tcga_mut <- fread("../../data/tcga/meta_tcga_w_signatures_and_mutations.tsv")
+
+meta_tcga_mut[, cat := "No Loss"]
+meta_tcga_mut[RBM5_annot == "Loss" & BAP1_annot == "Loss", cat := "Both Loss"]
+meta_tcga_mut[RBM5_annot == "Loss" & BAP1_annot != "Loss", cat := "RBM5 Loss"]
+meta_tcga_mut[RBM5_annot != "Loss" & BAP1_annot == "Loss", cat := "BAP1 Loss"]
+meta_tcga_mut[, cat := factor(cat, levels = c("No Loss", "BAP1 Loss","RBM5 Loss", "Both Loss"))]
+
+p <- ggplot(meta_tcga_mut, aes(x = "", fill = cat)) +
+  geom_bar(width = 1) +
+  coord_polar("y") +
+  labs(
+    title = "RBM5 and BAP1 copy number status",
+    subtitle = "TCGA Pan-cancer"
+  ) +
+  theme_void() +
+  theme(legend.position = "bottom")
+p
+```
+
+## 6E
+
+```{r}
+# boxplot of BAP1 annotations
+meta_tcga_mut[, BAP1_annot := factor(BAP1_annot, levels = c("Normal", "Mut", "Loss", "Both"))]
+p <- ggplot(meta_tcga_mut[BAP1_annot != "Both"], aes(BAP1_annot, dhx15_score)) +
+  labs(
+    title = "BAP1 Aberrations",
+    subtitle = "TCGA Pan-cancer",
+    y = "DHX15 CSJ Signature"
+  ) +
+  geom_boxplot() +
+  stat_n_text() +
+  stat_compare_means(
+    comparisons = list(
+      c("Normal", "Mut"),
+      c("Normal", "Loss")
+    )
+  )
+```
+
+## 6G
+
+```{r}
+dt <- data.table(
+  meta_tcga_cnv_gii,
+  aggf1_cn = gistic_merged["AGGF1", meta_tcga_cnv_gii$Sample.ID]
+)
+dt[aggf1_cn < 0, cnv_cat := "CN < 0"]
+dt[aggf1_cn >= 0, cnv_cat := "CN >= 0"]
+dt[, cnv_cat := factor(cnv_cat, levels = c("CN >= 0", "CN < 0"))]
+dt <- dt[Project.ID == "TCGA-BRCA"]
+
+p <- ggplot(dt, aes(cnv_cat, dhx15_score)) +
+  labs(
+    title = "DHX15 CSJ by CN Group",
+    subtitle = "TCGA BRCA",
+    y = "DHX15 CSJ Signature"
+  ) +
+  geom_boxplot() +
+  stat_compare_means() +
+  stat_n_text()
+p
+```
+
+## 6H
+
+```{r}
+assoc_res <- fread("../../data/tcga/dhx15_association_studies/gene_loss_BRCA.csv")
+assoc_res[, chromosome_arm := ifelse(grepl("p", cytoband), "p", "q")]
+assoc_res[, chromosome_arm := paste0(chr, chromosome_arm)]
+
+# pull brca patients from gistic
+brca_pts <- meta_tcga_cnv_gii[Project.ID == "TCGA-BRCA", Sample.ID]
+gistic_brca <- gistic_merged[, brca_pts]
+dt <- data.table(
+  gene_name = rownames(gistic_brca),
+  loss_frac = rowMeans(gistic_brca < 0, na.rm = TRUE)
+)
+
+assoc_res <- merge(assoc_res, dt)
+
+dt <- assoc_res[
+  ,
+  .(
+    loss_frac_arm = mean(loss_frac, na.rm = TRUE),
+    score_arm = mean(association_score, na.rm = TRUE)),
+  by = chromosome_arm]
+
+lower <- dt[chromosome_arm == "5q", loss_frac_arm * 0.9]
+upper <- dt[chromosome_arm == "5q", loss_frac_arm * 1.1]
+dt[loss_frac_arm >= lower & loss_frac_arm <= upper, label := chromosome_arm]
+chrs <- dt[!is.na(label), unique(label)]
+p <- ggplot(dt, aes(loss_frac_arm, score_arm)) +
+  geom_point() + 
+  ggrepel::geom_text_repel(aes(label = chromosome_arm), color = "red") +
+  geom_smooth(method = "lm")
+
+dt2 <- assoc_res[chromosome_arm %in% chrs]
+
+# subset to just 11p, 2q, and 5q
+dt2 <- dt2[chromosome_arm %in% c("11p", "2q", "5q")]
+dt2[, association_score := association_score * -1]
+
+# factor chromosome arm by median score
+dt2[, chromosome_arm := factor(
+  chromosome_arm,
+  levels = dt2[, .(median_score = median(association_score, na.rm = TRUE)), chromosome_arm][order(median_score), chromosome_arm]
+)]
+
+p2 <- ggplot(dt2, aes(chromosome_arm, association_score)) +
+  geom_boxplot() + 
+  labs(
+    title = "Average association score in BRCA by chromsome arm",
+    x = "Chromosome arm",
+    y = "Association score"
+  ) +
+  theme(
+    plot.title = element_text(hjust = 0.5)
+  ) +
+  ggpubr::stat_compare_means(
+    comparisons = list(
+      c("11p", "5q"),
+      c("2q", "5q")
+    ),
+    method = "wilcox.test"
+  )
+```
