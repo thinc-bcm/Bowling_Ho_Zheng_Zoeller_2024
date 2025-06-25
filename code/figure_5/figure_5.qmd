@@ -70,6 +70,7 @@ p <- pheatmap(scaled_usage,
            Cell.line = c(SUM159 = "blue", `MDA-MB231-LM2` = "green")),
          annotation_col = meta_sub,
          breaks = seq(-2, 2, length = 100))
+p
 ```
 
 ## 5B
@@ -84,6 +85,10 @@ min_max_dose <- meta_sub[, .(
   by = Target]
 meta_sub <- merge(meta_sub, min_max_dose, by = "Target")
 meta_sub <- meta_sub[Dosage.value == min_dose | Dosage.value == max_dose]
+meta_sub[, Target := factor(
+  Target, levels = c(
+  "U2AF2", "DDX46", "SF3B1", "PRPF8", "DHX16", "AQR", "DHX38", "DHX15"
+))]
 
 farben <- c(U2AF2 = "#9268AC",
             DDX46 = "#8C574C",
@@ -113,14 +118,18 @@ p
 meta <- fread("../../data/r222g_mutant/CSJ_signature_score_r222g_mutant_meta.tsv")
 score <- fread(
   "../../data/r222g_mutant/CSJ_signature_score_r222g_mutant_score.tsv")
-aframe <- data.frame(meta, score)
+dt <- merge(meta, score, by = c("V1", "Sample.display.name"))
+dt[, condition := factor(
+  condition,
+  levels = c("WT Veh 24", "GFP Trt 6", "WT Trt 6", "R222G Trt 6")
+)]
 
-# Figure 6 E
-ggplot(aframe,
+p <- ggplot(dt,
        aes(condition, score)) +
+  geom_boxplot() + 
+  geom_point() +
   labs(title = "Human R222G data",
        y = "DHX15 Signature CSJ Score") +
-  geom_boxplot() + geom_point() +
   stat_compare_means(comparisons = list(c(1, 2),
                                         c(2, 3),
                                         c(2, 4)),
@@ -243,6 +252,7 @@ p <- ggplot(meta_tcga_mut, aes(x = "", fill = cat)) +
   ) +
   theme_void() +
   theme(legend.position = "bottom")
+p
 ```
 
 ## 5I
