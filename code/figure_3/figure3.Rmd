@@ -16,36 +16,7 @@ library(data.table)
 library(gridExtra)
 ```
 
-### Figure 3 D
-
-
-Predicted branch point strength is similar between cryptic and canonical splice sites. Empirical cumulative distribution curves of predicted branch point strength are plotted. 
-
-
-
-```{r }
-bp_str <- read.delim('../../data/bpp_outs/bp_strength_ecdf.tsv')
-
-ggplot(bp_str, aes(score, color = type)) +
-  labs(title = "Branchpoint strength",
-       x = "BPP branchpoint strength",
-       y = "Density") +
-  geom_vline(xintercept = 
-               mean(bp_str$score[bp_str$type =="cryptic"]),
-             linetype = 'dashed', color = "red") +
-  geom_vline(xintercept = 
-               mean(bp_str$score[bp_str$type =="canonical"]),
-             linetype = 'dashed', color = "black") +
-  stat_ecdf() +
-  scale_color_manual(values = c("black", "red"), name = "category") +
-  theme_classic()
-
-```
-
-
-
-
-(E, F) Cryptic splice sites used upon DHX15 degradation are weaker than canonical splice sites. Empirical cumulative distribution curves of MaxENT predicted splice site strength of both cryptic and canonical (E) 5’ss and (F) 3’ss are plotted. A leftward shift in the black curve indicates decreased splice site strength of cryptic splice junctions.
+### Figure 3A
 
 ```{r }
 preds <- read.csv(
@@ -97,9 +68,7 @@ tmp_5ss <- rbind(data.frame(type = "canonical", score = ki_5ss),
                       data.frame(type = "cryptic", score = uj_5ss))
 ```
 
-### Figure 3 E
-
-```{r 3_E}
+```{r 3_A}
 ggplot(tmp_5ss, aes(score, color = type)) +
   labs(title = "5ss",
        x = "MaxEnt score5ss",
@@ -114,9 +83,9 @@ ggplot(tmp_5ss, aes(score, color = type)) +
 ```
 
 
-### Figure 3 F
+### Figure 3 B
 
-```{r 3_F}
+```{r 3_B}
 ggplot(tmp_3ss, aes(score, color = type)) +
   labs(title = "3ss",
        x = "MaxEnt score3ss",
@@ -130,85 +99,9 @@ ggplot(tmp_3ss, aes(score, color = type)) +
   theme_classic()
 ```
 
+### Figure 3 C
 
-### Figure 3 H
-
-
-Cryptic splice sites used upon DHX15 degradation have higher splice prediction scores compared to surrounding nucleotides. SpliceAI analysis was used to predict the splice site probability of each nucleotide in a 200bp window centered on a cryptic splice site. Shown is the mean SpliceAI probability score for 100 randomly selected cryptic splice sites. Splice donor and acceptor probability were calculated for canonical 3’ss and canonical 5’ss, respectively, as a negative control
-
-### Figure 3 H Cryptic 5'ss
-
-```{r }
-match5_acc_left_500 <- fread("../../data/genomic_sequences/match_5_acc_left_500")
-match5_acc_right_500 <- fread("../../data/genomic_sequences/match_5_acc_righ_500")
-match3_do_left_500 <- fread("../../data/genomic_sequences/match_3_do_left_500")
-match3_do_right_500 <- fread("../../data/genomic_sequences/match_3_do_righ_500")
-
-read_file_average <- function(match3_acc) {
-  m3_acc <- match3_acc[2:501, 1:10000]
-  colnames(m3_acc) <- as.character(c(1:10000))
-  m3_acc <- m3_acc[1:500, 4950:5050]
-  mean_pred <- unlist(lapply(m3_acc, mean), use.names = FALSE)
-  df <- data.frame(position = c(- 50:50), predict = mean_pred)
-  df
-}
-```
-
-```{r 3_H_Cryptic_5ss}
-p3 <- ggplot(
-  read_file_average(match3_do_left_500), aes(x = position, y = predict)) +
-  geom_point(size = 0.5) +
-  ggtitle("Cryptic 5'ss") +
-  xlab("Position [relative to splice site]") +
-  ylab("spliceAI donor probability") +
-  ylim(0, 0.5) +
-  theme_classic()
-
-p4 <- ggplot(
-  read_file_average(match3_do_right_500), aes(x = position, y = predict)) +
-  geom_point(size = 0.5) +
-  ggtitle("Canonical 3'ss") +
-  xlab("Position [relative to splice site]") +
-  ylab("spliceAI donor probability") +
-  ylim(0, 0.5) +
-  theme_classic()
-grid.arrange(p3, p4, ncol = 2, nrow = 1)
-```
-
-
-### Figure 3 H Cryptic 3'ss
-
-
-```{r 3_H_Cryptic_3ss}
-p1 <- ggplot(
-  read_file_average(match5_acc_left_500), aes(x = position, y = predict)) +
-  geom_point(size = 0.5) +
-  ggtitle("Canonical 5'ss") +
-  xlab("Position [relative to splice site]") +
-  ylab("spliceAI acceptor probability") +
-  ylim(0, 0.5) +
-  theme_classic()
-
-p2 <- ggplot(
-  read_file_average(match5_acc_right_500), aes(x = position, y = predict)) +
-  geom_point(size = 0.5) +
-  ggtitle("Cryptic 3'ss") +
-  xlab("Position [relative to splice site]") +
-  ylab("spliceAI acceptor probability") +
-  ylim(0, 0.5) +
-  theme_classic()
-
-
-grid.arrange(p1, p2, ncol = 2, nrow = 1)
-```
-
-
-### Figure 3 I
-
-
-(I – J) Cryptic splice sites used upon DHX15 degradation are weaker than canonical splice sites. Empirical cumulative distribution curves of SpliceAI predicted splice site strength of both cryptic and canonical (I) 5’ss and (J) 3’ss are plotted. A leftward shift in the black curve indicates decreased splice site strength of cryptic splice junctions.
-
-```{r 3_I}
+```{r 3_C}
 
 ggplot(tmp_donor_spliceai, aes(value, color = variable)) +
   labs(title = "5ss",
@@ -227,11 +120,9 @@ ggplot(tmp_donor_spliceai, aes(value, color = variable)) +
   theme_classic()
 ```
 
+### Figure 3 D
 
-### Figure 3 J
-
-
-```{r 3_J}
+```{r 3_D}
 ggplot(tmp_acceptor_spliceai, aes(value, color = variable)) +
   labs(title = "3ss",
        x = "SpliceAI acceptor probability",
