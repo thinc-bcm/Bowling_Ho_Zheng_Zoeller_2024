@@ -1,0 +1,250 @@
+---
+title: "Figure 7"
+format:
+  pdf:
+    toc: true
+execute: 
+  warning: false
+---
+
+# Figure 7. Elevated CSJ score predicts DHX15 score independently of DHX15 copy number.
+
+```{r}
+library(biomaRt)
+library(data.table)
+library(EnvStats)
+library(ggplot2)
+library(ggpubr)
+theme_set(
+  theme_classic() +
+    theme(
+      text = element_text(family = "ArialMT", color = "black"),
+      axis.ticks = element_line(color = "black"), 
+      axis.text = element_text(color = "black")
+    )
+)
+```
+
+```{r}
+sample_info <- fread("../../data/depmap/meta_depmap_w_signature.tsv")
+
+
+cnv <- fread("../../data/depmap/depmap_cn_dhx15_rbm5.tsv")
+demeter2 <- fread("../../data/depmap/depmap_demeter2_dhx15.tsv")
+
+sample_info_cnv <- merge(sample_info, cnv, by = "DepMap_ID", all.x = TRUE)
+sample_info_dem_cnv <- merge(sample_info_cnv, demeter2, by = "DepMap_ID", all.x = TRUE)
+```
+
+## 7A
+
+```{r}
+dt <- copy(sample_info_dem_cnv)
+dt <- dt[!is.na(dhx15_dem) & !is.na(DHX15)]
+dt[, cnv_cat := ifelse(
+  DHX15 < 0.8,
+  "DHX15 Loss (CN < 0.8)",
+  "No DHX15 Loss (CN >= 0.8)")
+  ]
+dt[, cnv_cat := factor(
+  cnv_cat,
+  levels = c("No DHX15 Loss (CN >= 0.8)", "DHX15 Loss (CN < 0.8)")
+  )]
+
+# boxplot of DHX15 CN by DHX15 dependency
+p <- ggplot(dt, aes(x = cnv_cat, y = dhx15_dem)) +
+  geom_boxplot() +
+  labs(
+    x = "DHX15 CN Category",
+    y = "DHX15 Dependency",
+    title = "DepMap - DHX15 Dependency by DHX15 CN Category") + 
+  ggpubr::stat_compare_means(method = "wilcox") +
+  EnvStats::stat_n_text() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+p
+```
+
+## 7B
+
+```{r}
+dt_brca <- dt[primary_disease == "Breast Cancer"]
+
+p <- ggplot(dt_brca, aes(x = cnv_cat, y = dhx15_dem)) +
+  geom_boxplot() +
+  labs(
+    x = "DHX15 CN Category",
+    y = "DHX15 Dependency",
+    title = "DepMap - DHX15 Dependency by DHX15 CN Category (BRCA)") +  
+  ggpubr::stat_compare_means(method = "wilcox") +
+  EnvStats::stat_n_text() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+p
+```
+
+## 7C
+
+```{r}
+dt <- copy(sample_info_dem_cnv)
+dt <- dt[!is.na(dhx15_dem) & !is.na(dhx15_score)]
+
+res_dem <- cor.test(
+  dt$dhx15_dem,
+  dt$dhx15_score,
+  method = "pearson")
+
+p <- ggplot(dt, aes(x = dhx15_score, y = dhx15_dem)) +
+  geom_point(size = 0.5) +
+  labs(
+    x = "DHX15 Score",
+    y = "DHX15 Demeter2",
+    title = "DHX15 dependency vs DHX15 score",
+    subtitle = sprintf("r = %.2f, p = %.2e",res_dem$estimate, res_dem$p.value))
+p
+```
+
+## 7D
+
+```{r}
+dt <- copy(sample_info_dem_cnv)
+dt <- dt[!is.na(dhx15_score) & !is.na(DHX15)]
+
+dt[, cnv_cat := ifelse(
+  DHX15 < 0.8,
+  "DHX15 Loss (CN < 0.8)",
+  "No DHX15 Loss (CN >= 0.8)")
+  ]
+dt[, cnv_cat := factor(
+  cnv_cat,
+  levels = c("No DHX15 Loss (CN >= 0.8)", "DHX15 Loss (CN < 0.8)"))
+  ]
+p <- ggplot(dt, aes(x = cnv_cat, y = dhx15_score)) +
+  geom_boxplot() +
+  labs(
+    x = "DHX15 CN Category",
+    y = "DHX15 Score",
+    title = "DepMap - DHX15 Score by DHX15 CN Category") +   
+  ggpubr::stat_compare_means(method = "wilcox") +
+  EnvStats::stat_n_text() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+p
+```
+
+## 7E
+
+```{r}
+dt_brca <- dt[primary_disease == "Breast Cancer"]
+
+p <- ggplot(dt_brca, aes(x = cnv_cat, y = dhx15_score)) +
+  geom_boxplot() +
+  labs(
+    x = "DHX15 CN Category",
+    y = "DHX15 Score",
+    title = "DepMap - DHX15 Score by DHX15 CN Category (BRCA)") +  
+  ggpubr::stat_compare_means(method = "wilcox") +
+  EnvStats::stat_n_text() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+p
+```
+
+## 7G
+
+### Correlation Plot
+
+```{r}
+dt <- copy(sample_info_dem_cnv)
+dt <- dt[!is.na(DHX15) & !is.na(dhx15_score) & !is.na(dhx15_dem)]
+
+dt[, cnv_cat := NA_character_]
+dt[DHX15 >= 0.8 & DHX15 <= 1.2, cnv_cat := "CN Neutral"]
+dt <- dt[cnv_cat == "CN Neutral"]
+
+setorder(dt, -dhx15_score, dhx15_dem)
+dt[DepMap_ID == "ACH-000374", label := "ACH-000374"]
+```
+
+```{r}
+cor_res <- cor.test(dt$dhx15_dem, dt$dhx15_score, method = "pearson")
+p <- ggplot(dt, aes(x = dhx15_score, y = dhx15_dem)) +
+  geom_point(size = 0.5) +
+  ggrepel::geom_label_repel(
+            aes(label = label), size = 2.5, color = "blue2",
+            box.padding = 0.5, max.overlaps = Inf, seed = 0,
+            min.segment.length = 0, na.rm = TRUE
+        ) +
+  labs(
+    x = "DHX15 Score",
+    y = "DHX15 DEMETER2 Score",
+    title = "DHX15 Score vs DHX15 dependency in CN neutral cell lines",
+    subtitle = sprintf("r = %.2f, p = %.2e", cor_res$estimate, cor_res$p.value))
+p
+```
+
+### Chr3 Copy Number Segment
+
+```{r}
+load("../../data/depmap/depmap_cn_matrix.RData")
+
+mart <- useDataset("hsapiens_gene_ensembl", useMart("ensembl"))
+genes <- colnames(cnv)
+chromosomes <- c(1:22, "X", "Y")
+# extract start, end, chromosome, and cytoband for each gene
+gene_info <- data.table(getBM(
+  attributes = c("hgnc_symbol", "chromosome_name", "start_position", "end_position", "band"),
+  filters = c("hgnc_symbol", "chromosome_name"),
+  values = list(genes, chromosomes),
+  mart = mart
+))
+dt <- data.table(
+  hgnc_symbol = genes,
+  cn = cnv["ACH-000374", ],
+  rank = 1:length(genes)
+)
+dt <- merge(dt, gene_info, by = "hgnc_symbol", sort = FALSE)
+
+dt <- dt[chromosome_name == "3"]
+dt[hgnc_symbol == "RBM5", label := "RBM5"]
+dt[, cn_cat := "Normal"]
+dt[cn < 0.8, cn_cat := "Loss"]
+dt[cn > 1.2, cn_cat := "Gain"]
+dt[, rank := 1:.N]
+
+p <- ggplot(dt, aes(x = rank, y = cn, label = label)) +
+  geom_point(aes(color = cn_cat), size = 0.7, alpha = 0.5) +
+  scale_color_manual(values = c("Normal" = "black", "Loss" = "blue", "Gain" = "red")) +
+  geom_hline(yintercept = 0.8, linetype = "dashed", color = "gray50") +
+  geom_hline(yintercept = 1.2, linetype = "dashed", color = "gray50") +
+  ggrepel::geom_label_repel(
+            box.padding = 2, max.overlaps = Inf, color = "blue2",
+            seed = 0, min.segment.length = 0, na.rm = TRUE
+        ) +
+  labs(x = "Gene Rank", y = "CN", title = "Chr3 CN in ACH-000374") +
+  theme(legend.position = "none")
+p
+```
+
+## 7H
+
+```{r}
+dt <- copy(sample_info_dem_cnv)
+dt <- dt[!is.na(DHX15) & !is.na(dhx15_score) & !is.na(dhx15_dem)]
+
+dt[, cnv_cat := NA_character_]
+dt[DHX15 >= 0.8 & DHX15 <= 1.2, cnv_cat := "CN Neutral"]
+dt <- dt[cnv_cat == "CN Neutral"]
+
+dt <- dt[order(dhx15_score)]
+dt[1:round(nrow(dt) * 0.1), score_cat := "Bottom 10%"]
+dt[round(nrow(dt) * 0.9):nrow(dt), score_cat := "Top 10%"]
+dt[, score_cat := factor(score_cat, levels = c("Bottom 10%", "Top 10%"))]
+
+p <- ggplot(dt[score_cat %in% c("Bottom 10%", "Top 10%")], aes(x = score_cat, y = dhx15_dem)) +
+  geom_boxplot() +
+  labs(
+    x = "DHX15 CSJ Score Category",
+    y = "DHX15 DEMETER2 Score",
+    title = "DHX15 Dependency by DHX15 CSJ Score Category in CN Neutral Cell Lines") + 
+  ggpubr::stat_compare_means(method = "wilcox") +
+  EnvStats::stat_n_text() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+p
+```
