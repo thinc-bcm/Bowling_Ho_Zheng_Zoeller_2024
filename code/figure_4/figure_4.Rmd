@@ -10,83 +10,117 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ## Figure 4
-### Figure 4 C
 
-Cryptic 3’ss maintain U2AF recognition while lacking SF3 complex binding. Cryptic 5’ss lack binding of canonical factors such as AQR and PRPF8. Heatmap indicates peak coverage (requiring >= 8-fold and p value <= 10^-3) in immunoprecipitations versus paired size-matched input in published ENCODE data. Color indicates average peak density across 500 splice junctions. Heatmap is clustered based on previous annotations (Van Nostrand Genome Biology 2020).
+### Figure 4 D
 
-
-```{r figure_4_c, fig.dim = c(6,4), out.height = 6, out.width = 4}
-# Load R libs ####
+```{r }
+library(ggplot2)
 library(pheatmap)
+library(gridExtra)
+library(viridisLite)
+```
 
-# Load data ####
-ki_5ss <- read.csv(
-  "../../data/eclip_overlaps/summary_tables/ki_5ss_summary.csv",
-  row.names = 1)
-ki_3ss <- read.csv(
-  "../../data/eclip_overlaps/summary_tables/ki_3ss_summary.csv",
-  row.names = 1)
-
-dhx15_5ss <- read.csv(
-  "../../data/eclip_overlaps/summary_tables/cryptic_5ss_summary.csv",
-  row.names = 1)
-dhx15_3ss <- read.csv(
-  "../../data/eclip_overlaps/summary_tables/cryptic_3sss_summary.csv",
-  row.names = 1)
-
-# Define column annotation #####
-anno_col_3ss <- data.frame(distance = c(rev(seq(1, 250)), seq(1, 75)))
-anno_col_5ss <- data.frame(distance = c(rev(seq(1, 75)), seq(1, 250)))
-
-# Define row annotation ####
-anno_row <- read.csv(
-  "../../data/eclip_overlaps/summary_tables/label_annotation.csv",
-  row.names = 1, header = FALSE)
-
-
-# Create heatmaps ####
-pheatmap(ki_5ss,
-         cluster_cols = FALSE,
-         cluster_rows = FALSE,
-         gaps_col = 75,
-         breaks = seq(-3.5, 3.5, length = 101),
-         show_rownames = FALSE, show_colnames = FALSE,
-         gaps_row = c(9, 15, 26, 42),
-         annotation_row = anno_row,
-         main = "Canonical 5'ss",
-         fontsize_row = 8
+```{r figure_4_D, warning=FALSE}
+filelist <- c(
+  "../../data/r222g_mutant/diff_misproc_tabs/DHX15_LM2__WT_vs_WT_Trt_vs_Veh__6hr.csv",
+  "../../data/r222g_mutant/diff_misproc_tabs/DHX15_LM2__GFP_vs_WT_Trt_vs_Veh__6hr.csv",
+  "../../data/r222g_mutant/diff_misproc_tabs/DHX15_LM2__R222G_vs_WT_Trt_vs_Veh__6hr.csv"
 )
 
-pheatmap(ki_3ss,
-         cluster_cols = FALSE,
-         cluster_rows = FALSE,
-         gaps_col = 250,
-         breaks = seq(-3.5, 3.5, length = 101),
-         show_rownames = FALSE, show_colnames = FALSE,
-         gaps_row = c(9, 15, 26, 42),
-         main = "Canonical 3'ss",
-         annotation_row = anno_row,
+exp_introns <- read.delim(
+  "../../data/r222g_mutant/exp_introns.tsv",
+  header = FALSE
 )
 
-pheatmap(dhx15_5ss,
-         cluster_cols = FALSE,
-         cluster_rows = FALSE,
-         gaps_col = 75,
-         breaks = seq(-3.5, 3.5, length = 101),
-         show_rownames = FALSE, show_colnames = FALSE,
-         gaps_row = c(9, 15, 26, 42),
-         main = "Cryptic 5'ss",
-         annotation_row = anno_row
-)
+filnam <- strsplit(filelist[1], "/")[[1]]
+filnam <- filnam[length(filnam)]
+filnam <- strsplit(filnam, split = "__", fixed = TRUE)[[1]][2]
+filnam <- strsplit(filnam, split = "_Trt", fixed = TRUE)[[1]][1]
+test <- read.delim(filelist[1], row.names = 1)
+test_filt <- test[exp_introns$V1, c("binomial_test_adj_p", "delta_ratio")]
+test_filt[test_filt$binomial_test_adj_p <= 1e-300,
+          "binomial_test_adj_p"] <- 1e-300
+p1 <- ggplot(test_filt,
+                     aes(delta_ratio, -log10(binomial_test_adj_p))) +
+  geom_hex(bins = 50) +
+  xlim(-0.4, 0.7) +
+  ylim(-1.5, 301.5) +
+  scale_fill_viridis_c(trans = "log", breaks = c(1, 10, 100, 1000),
+                       limits = c(1, 1000), na.value = "#FDE725FF") +
+  xlab("Delta ratio") +
+  ylab("-log10 p-value") +
+  labs(title = "DHX15  WT") +
+  geom_vline(xintercept = 0, linetype = "dashed") +
+  theme_classic() +
+  theme(legend.position = "none")
 
-pheatmap(dhx15_3ss,
-         cluster_cols = FALSE,
-         cluster_rows = FALSE,
-         gaps_col = 250,
-         breaks = seq(-3.5, 3.5, length = 101),
-         show_rownames = FALSE, show_colnames = FALSE,
-         gaps_row = c(9, 15, 26, 42),
-         main = "Cryptic 5'ss",
-         annotation_row = anno_row
-)
+filnam <- strsplit(filelist[2], "/")[[1]]
+filnam <- filnam[length(filnam)]
+filnam <- strsplit(filnam, split = "__", fixed = TRUE)[[1]][2]
+filnam <- strsplit(filnam, split = "_Trt", fixed = TRUE)[[1]][1]
+test <- read.delim(filelist[2], row.names = 1)
+test_filt <- test[exp_introns$V1, c("binomial_test_adj_p", "delta_ratio")]
+test_filt[test_filt$binomial_test_adj_p <= 1e-300,
+          "binomial_test_adj_p"] <- 1e-300
+p2 <- ggplot(test_filt,
+                     aes(delta_ratio, -log10(binomial_test_adj_p))) +
+  geom_hex(bins = 50) +
+  xlim(-0.4, 0.7) +
+  ylim(-1.5, 301.5) +
+  scale_fill_viridis_c(trans = "log", breaks = c(1, 10, 100, 1000),
+                       limits = c(1, 1000), na.value = "#FDE725FF") +
+  xlab("Delta ratio") +
+  ylab("-log10 p-value") +
+  labs(title = "GFP") +
+  geom_vline(xintercept = 0, linetype = "dashed") +
+  theme_classic() +
+  theme(legend.position = "none")
+
+filnam <- strsplit(filelist[3], "/")[[1]]
+filnam <- filnam[length(filnam)]
+filnam <- strsplit(filnam, split = "__", fixed = TRUE)[[1]][2]
+filnam <- strsplit(filnam, split = "_Trt", fixed = TRUE)[[1]][1]
+test <- read.delim(filelist[3], row.names = 1)
+test_filt <- test[exp_introns$V1, c("binomial_test_adj_p", "delta_ratio")]
+test_filt[test_filt$binomial_test_adj_p <= 1e-300,
+          "binomial_test_adj_p"] <- 1e-300
+p3 <- ggplot(test_filt,
+                     aes(delta_ratio, -log10(binomial_test_adj_p))) +
+  geom_hex(bins = 50) +
+  xlim(-0.4, 0.7) +
+  ylim(-1.5, 301.5) +
+  scale_fill_viridis_c(trans = "log", breaks = c(1, 10, 100, 1000),
+                       limits = c(1, 1000), na.value = "#FDE725FF") +
+  xlab("Delta ratio") +
+  ylab("-log10 p-value") +
+  geom_vline(xintercept = 0, linetype = "dashed") +
+  labs(title = "DHX15  R222G") +
+  theme_classic() +
+  theme(legend.position = "none")
+
+final <- grid.arrange(p2, p1, p3, ncol = 3, nrow = 1)
+
+```
+
+### Figure 4 J
+
+```{r figure_4_J}
+
+misproc_tab <- read.table(
+  "../../data/aml_mouse/pc2_select_introns_heatmap.tsv", sep = "\t",
+  header = TRUE, row.names = 1)
+
+meta <- read.table("../../data/aml_mouse/pc2_select_introns_meta.tsv",
+                   sep = "\t", header = TRUE, row.names = 1)
+
+pheatmap(misproc_tab,
+      breaks = seq(-2, 2, length = 100),
+      gaps_col = c(3, 6, 9, 12, 15),
+      cluster_rows = TRUE,
+      col = magma(100),
+      cluster_cols = FALSE,
+      annotation_col = meta[, c("Dosage.value", "Dosage.2.value")],
+      show_rownames = FALSE, show_colnames = FALSE,
+      border_color = NA
+      )
 ```
