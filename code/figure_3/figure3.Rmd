@@ -139,6 +139,110 @@ ggplot(tmp_acceptor_spliceai, aes(value, color = variable)) +
   theme_classic()
 ```
 
+### Figure 3 E
+
+```{r 3_E}
+# spliceAI predictions from code/figure_3/Run_spliceAI_on_junctions.ipynb
+
+ujs <- read.csv(
+  "../../data/dtag_experiments/random_500_ujs.csv"
+)
+
+# Calculate MaxEntScores ####
+ujs <- ujs[ujs$strand == "+", ]
+
+maxents <- do.call(rbind, lapply(1:nrow(ujs), function(x) {
+  seq <- as.character(getSeq(
+    Hsapiens,
+    ujs$chr[x],
+    ujs$end[x] - 19,
+    ujs$end[x] + 3
+  ))
+
+  score_3 <- calculateMaxEntScanScore(seq, 3)
+
+  seq <- as.character(getSeq(
+    Hsapiens,
+    ujs$chr[x],
+    ujs$start[x] - 3,
+    ujs$start[x] + 5
+  ))
+
+  score_5 <- calculateMaxEntScanScore(seq, 5)
+
+  c(
+    as.numeric(score_3),
+    as.numeric(score_5)
+  )
+}))
+colnames(maxents) <- c("score_3", "score_5")
+
+# Load SpliceAI predictions ####
+files <- c(
+  "../../data/dtag_experiments/acceptor_spliceai_start.txt",
+  "../../data/dtag_experiments/donor_spliceai_start.txt",
+  "../../data/dtag_experiments/acceptor_spliceai_end.txt",
+  "../../data/dtag_experiments/donor_spliceai_end.txt"
+)
+
+dat <- lapply(files, read.table)
+
+preds <- cbind(
+  do.call(cbind, lapply(dat[1:2], function(x) x[, 99])),
+  do.call(cbind, lapply(dat[3:4], function(x) x[, 101]))
+)
+colnames(preds) <- c(
+  "acc_start",
+  "don_start",
+  "acc_end",
+  "don_end"
+)
+
+merged <- data.frame(
+  ujs,
+  maxents,
+  preds
+)
+
+p <- ggplot(
+  merged,
+  aes(score_3, acc_end, color = class)
+) +
+  labs(
+    title = "Predicted 3' Splice Site Strength",
+    x = "MaxEntScore [3']",
+    y = "Splice AI acceptor [3']"
+  ) +
+  geom_point() +
+  scale_color_manual(
+    values = c("black", "red"),
+    labels = c("canonical", "cryptic")
+  ) +
+  theme_classic()
+p
+```
+
+### Figure 3 F
+
+```{r 3_F}
+p <- ggplot(
+  merged,
+  aes(score_5, don_start, color = class)
+) +
+  geom_point() +
+  labs(
+    title = "Predicted 5' Splice Site Strength",
+    x = "MaxEntScore [5']",
+    y = "Splice AI donor [5']"
+  ) +
+  scale_color_manual(
+    values = c("red", "black"),
+    labels = c("canonical", "cryptic")
+  ) +
+  theme_classic()
+p
+```
+
 ### Figure 3 H
 
 ```{r figure_3_h, fig.dim = c(6,4), out.height = 6, out.width = 4}
