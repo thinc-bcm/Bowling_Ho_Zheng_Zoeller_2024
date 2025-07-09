@@ -7,6 +7,22 @@ execute:
   warning: false
 ---
 
+```{r}
+library(data.table)
+library(EnvStats)
+library(ggplot2)
+library(ggpubr)
+library(ggprepel)
+theme_set(
+    theme_classic() +
+        theme(
+            text = element_text(family = "ArialMT", color = "black"),
+            axis.ticks = element_line(color = "black"),
+            axis.text = element_text(color = "black")
+        )
+)
+```
+
 # Figure 6
 
 ## 6A
